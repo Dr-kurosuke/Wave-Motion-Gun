@@ -101,16 +101,17 @@ public class TriggerUpdatePacket {
 
     /**
      * トリガーユニットに紐付く周波数のモニタリングユニット経由で、ストレージ設定を反映する。
-     * 周波数マップはプロセス全体で共有されるため、送信者と同一次元のモニターのみを対象とする。
+     *
+     * 周波数マップはプロセス全体で共有されるため、送信者と同一次元・ロード済みチャンクの
+     * モニターのみを対象とする必要がある。その絞り込みは getReceivers(Level, int) が行う
+     * (発射信号など他の経路でも同じ保護が要るため、FrequencyManager 側に集約している)。
      */
     private static void applyStorageSettings(TriggerUpdatePacket msg, int freq, ServerLevel playerLevel) {
-        Set<MonitoringUnitBlockEntity> monitors = FrequencyManager.getReceivers(freq);
+        Set<MonitoringUnitBlockEntity> monitors = FrequencyManager.getReceivers(playerLevel, freq);
         if (monitors == null) return;
 
         for (MonitoringUnitBlockEntity monitor : monitors) {
             if (monitor == null || monitor.isRemoved() || monitor.getLevel() == null) continue;
-            if (monitor.getLevel() != playerLevel) continue; // 別次元への波及を防ぐ
-            if (!monitor.getLevel().isLoaded(monitor.getBlockPos())) continue;
 
             // モニターに紐付いているストレージを取得
             WaveEnergyStorageBlockEntity storage = monitor.getNearbyStorage();

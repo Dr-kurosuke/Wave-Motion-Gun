@@ -167,7 +167,7 @@ public class TriggerUnitBlockEntity extends BlockEntity implements MenuProvider 
                 be.serverTickCounter++;
                 boolean periodicTick = (be.serverTickCounter % 20 == 0);
                 if (be.targetFrequency != be.lastSentFreq || be.storageMode != be.lastSentMode || periodicTick) {
-                    FrequencyManager.sendSignal(be.targetFrequency, be.storageMode);
+                    FrequencyManager.sendSignal(level, be.targetFrequency, be.storageMode);
                     be.lastSentFreq = be.targetFrequency;
                     be.lastSentMode = be.storageMode;
                 }
@@ -194,7 +194,7 @@ public class TriggerUnitBlockEntity extends BlockEntity implements MenuProvider 
         boolean foundStorage = false;
         boolean foundCannon = false;
 
-        Set<MonitoringUnitBlockEntity> monitors = FrequencyManager.getReceivers(this.targetFrequency);
+        Set<MonitoringUnitBlockEntity> monitors = FrequencyManager.getReceivers(level, this.targetFrequency);
 
         if (monitors != null) {
             for (MonitoringUnitBlockEntity monitor : monitors) {
@@ -279,7 +279,7 @@ public class TriggerUnitBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     private static void handleAutoShutdown(Level level, TriggerUnitBlockEntity be) {
-        Set<MonitoringUnitBlockEntity> monitors = FrequencyManager.getReceivers(be.targetFrequency);
+        Set<MonitoringUnitBlockEntity> monitors = FrequencyManager.getReceivers(level, be.targetFrequency);
         if (monitors == null) return;
 
         boolean foundStorage = false;
@@ -339,7 +339,7 @@ public class TriggerUnitBlockEntity extends BlockEntity implements MenuProvider 
 
     /** 発射者(実績付与用)を指定して発射信号を送る */
     public void fireCannonSignal(@Nullable net.minecraft.server.level.ServerPlayer firer) {
-        FrequencyManager.sendSignal(targetFrequency, 3, firer);
+        FrequencyManager.sendSignal(this.level, targetFrequency, 3, firer);
     }
 
     @Override

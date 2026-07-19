@@ -167,7 +167,7 @@ public class MonitoringUnitBlockEntity extends BlockEntity implements MenuProvid
     }
 
     public void onStorageOverheat() {
-        FrequencyManager.feedbackOverheat(this.frequency);
+        FrequencyManager.feedbackOverheat(this.level, this.frequency);
     }
 
     private boolean isBlock(BlockState state, net.minecraftforge.registries.RegistryObject<net.minecraft.world.level.block.Block> blockReg) {
