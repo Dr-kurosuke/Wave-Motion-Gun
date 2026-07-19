@@ -100,7 +100,9 @@ public class TriggerUnitMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(levelAccess, player, BlockInit.TRIGGER_UNIT.get());
+        if (this.blockEntity == null || this.blockEntity.getLevel() == null) return false;
+        return com.example.wave_motion_gun.compat.VSCompat.stillValidContainer(
+                blockEntity.getLevel(), blockEntity.getBlockPos(), player, BlockInit.TRIGGER_UNIT.get());
     }
 
     @Override
@@ -127,7 +129,7 @@ public class TriggerUnitMenu extends AbstractContainerMenu {
         int rOutlet = 0;
 
         // 統合された targetFrequency を使用して MonitoringUnit を取得
-        Set<MonitoringUnitBlockEntity> monitors = FrequencyManager.getReceivers(blockEntity.targetFrequency);
+        Set<MonitoringUnitBlockEntity> monitors = FrequencyManager.getReceivers(blockEntity.getLevel(), blockEntity.targetFrequency);
 
         if (monitors != null) {
             for (MonitoringUnitBlockEntity monitor : monitors) {

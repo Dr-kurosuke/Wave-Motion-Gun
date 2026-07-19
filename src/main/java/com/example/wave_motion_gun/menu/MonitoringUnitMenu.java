@@ -140,7 +140,8 @@ public class MonitoringUnitMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player p) {
         if (this.blockEntity == null || this.blockEntity.getLevel() == null) return false;
-        return stillValid(ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos()), p, BlockInit.MONITORING_UNIT.get());
+        return com.example.wave_motion_gun.compat.VSCompat.stillValidContainer(
+                blockEntity.getLevel(), blockEntity.getBlockPos(), p, BlockInit.MONITORING_UNIT.get());
     }
 
     @Override public ItemStack quickMoveStack(Player p, int i) { return ItemStack.EMPTY; }

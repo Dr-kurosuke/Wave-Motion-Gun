@@ -36,6 +36,23 @@ public final class VSCompat {
     }
 
     /**
+     * コンテナGUIを開き続けてよいかの判定 (AbstractContainerMenu#stillValid のVS2対応版)。
+     *
+     * バニラの stillValid は素の player.distanceToSqr で 8ブロックを見るため、
+     * シップヤード座標にある船上ブロックでは必ず false になり、
+     * GUIを開いた次のtickでサーバーから強制クローズされてしまう。
+     * パケット側の距離検証をVS2対応しても、ここが素のままだと船上では何も操作できない。
+     *
+     * ブロックの同一性チェックはシップヤード座標のまま行うのが正しい
+     * (ワールド座標側にはそのブロックは存在しないため)。
+     */
+    public static boolean stillValidContainer(Level level, BlockPos pos, Player player,
+                                              net.minecraft.world.level.block.Block expected) {
+        if (!level.getBlockState(pos).is(expected)) return false;
+        return isWithinReach(player, pos, 8.0); // バニラの ContainerLevelAccess と同じ 8ブロック
+    }
+
+    /**
      * シップヤード座標をワールド座標へ変換する。船上でなければそのまま返す。
      * エンティティ生成位置・効果音位置・付近プレイヤー検索の基準点に使う。
      */

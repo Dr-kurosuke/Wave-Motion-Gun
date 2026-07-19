@@ -4,6 +4,7 @@ import com.example.wave_motion_gun.blockentity.MonitoringUnitBlockEntity;
 import com.example.wave_motion_gun.blockentity.TriggerUnitBlockEntity;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 import net.minecraftforge.event.server.ServerStoppedEvent;
@@ -66,11 +67,13 @@ public class FrequencyManager {
         registerTrigger(newFreq, be);
     }
 
-    public static void feedbackOverheat(int freq) {
+    /** originと同一Levelのトリガーユニットにのみオーバーヒートを伝える */
+    public static void feedbackOverheat(Level origin, int freq) {
         Set<TriggerUnitBlockEntity> set = triggers.get(freq);
         if (set != null) {
             for (TriggerUnitBlockEntity trigger : new HashSet<>(set)) {
-                if (trigger != null && !trigger.isRemoved() && trigger.hasLevel()) {
+                if (trigger != null && !trigger.isRemoved() && trigger.hasLevel()
+                        && isSameLevelAndLoaded(trigger, origin)) {
                     trigger.setStorageMode(0); // 0 = EXHAUST
                 }
             }
@@ -78,15 +81,15 @@ public class FrequencyManager {
     }
 
     // --- 信号送信 ---
-    public static void sendSignal(int freq, int type) {
-        sendSignal(freq, type, null);
+    public static void sendSignal(Level origin, int freq, int type) {
+        sendSignal(origin, freq, type, null);
     }
 
     /** 発射者(実績付与用)を指定して信号を送る。firerはnull可 */
-    public static void sendSignal(int freq, int type, @Nullable ServerPlayer firer) {
+    public static void sendSignal(Level origin, int freq, int type, @Nullable ServerPlayer firer) {
         // getReceiversは未登録ならemptySetを返すため、事前のcontainsKeyチェックは不要
         // 受信側のリストをコピーして反復処理
-        for (MonitoringUnitBlockEntity be : new HashSet<>(getReceivers(freq))) {
+        for (MonitoringUnitBlockEntity be : new HashSet<>(getReceivers(origin, freq))) {
             // getReceiversで厳密なチェック済みのため、ここでは基本的なチェックのみで良いが念のため
             if (be != null && !be.isRemoved() && be.hasLevel()) {
                 be.activate(type, firer);
@@ -94,14 +97,33 @@ public class FrequencyManager {
         }
     }
 
-    public static void sendSignal(int freq) {
-        sendSignal(freq, 1);
+    public static void sendSignal(Level origin, int freq) {
+        sendSignal(origin, freq, 1);
     }
 
     /**
-     * 指定周波数の受信機セットを取得し、同時に無効なインスタンス（幽霊BE）を削除する
+     * BEがoriginと同一のLevelに属し、かつそのチャンクがロード済みかを判定する。
+     *
+     * Levelインスタンスの同一性(==)で比較しているのは意図的で、次元跨ぎを防ぐと同時に
+     * クライアント側Levelとサーバー側Levelの取り違えも同時に弾くため
+     * (dimension()の比較では両者が同一視されてしまう)。
      */
-    public static Set<MonitoringUnitBlockEntity> getReceivers(int freq) {
+    private static boolean isSameLevelAndLoaded(BlockEntity be, @Nullable Level origin) {
+        if (origin == null) return true; // 呼び出し元がLevelを特定できない場合は従来通り
+        Level beLevel = be.getLevel();
+        if (beLevel != origin) return false;
+        // 未ロードチャンクへのアクセスは強制ロードを誘発するため対象外にする
+        return beLevel.isLoaded(be.getBlockPos());
+    }
+
+    /**
+     * 指定周波数の受信機セットを取得し、同時に無効なインスタンス（幽霊BE）を削除する。
+     *
+     * originを渡すと、同一Level かつ ロード済みチャンク のBEのみに絞り込む。
+     * これが無いと、周波数さえ合えば別次元・未ロードチャンクのユニットまで
+     * 遠隔操作できてしまう(未ロードチャンクの強制ロードにも繋がる)。
+     */
+    public static Set<MonitoringUnitBlockEntity> getReceivers(@Nullable Level origin, int freq) {
         Set<MonitoringUnitBlockEntity> set = receivers.get(freq);
         if (set == null) return Collections.emptySet();
 
@@ -124,11 +146,21 @@ public class FrequencyManager {
             receivers.remove(freq);
             return Collections.emptySet();
         }
-        return set;
+
+        if (origin == null) return set;
+
+        // 同一Level かつ ロード済み のものだけを新しいSetにして返す
+        // (呼び出し元がsetを直接触らないよう、絞り込み時はコピーを返す)
+        Set<MonitoringUnitBlockEntity> scoped = new HashSet<>();
+        for (MonitoringUnitBlockEntity be : set) {
+            if (isSameLevelAndLoaded(be, origin)) scoped.add(be);
+        }
+        return scoped;
     }
 
     private static void cleanUp(int freq) {
-        getReceivers(freq); // getReceivers内部でremoveIfが走る (未登録ならemptySetが返るだけ)
+        // 幽霊BEの掃除が目的なのでLevel絞り込みはしない(null渡し)
+        getReceivers(null, freq); // getReceivers内部でremoveIfが走る (未登録ならemptySetが返るだけ)
     }
 
     @SubscribeEvent

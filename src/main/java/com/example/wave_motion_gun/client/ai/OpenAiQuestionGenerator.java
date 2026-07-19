@@ -73,6 +73,33 @@ public class OpenAiQuestionGenerator {
                 });
     }
 
+    /**
+     * baseUrl はユーザーが自由に設定できるため、APIキーを平文で送り出さないか検証する。
+     *
+     * http:// のままだと Authorization: Bearer &lt;キー&gt; がネットワーク上を平文で流れる。
+     * ただしOllama等のローカルAPI利用(キー不要)は正当なユースケースなので、
+     * ループバック宛て、またはキーを送らない場合に限り http を許可する。
+     */
+    private static void requireSafeEndpoint(URI uri, boolean sendsApiKey) {
+        String scheme = uri.getScheme();
+        if (scheme == null) {
+            throw new IllegalArgumentException("Invalid API base URL (missing scheme): " + uri);
+        }
+        if (scheme.equalsIgnoreCase("https")) return;
+        if (!scheme.equalsIgnoreCase("http")) {
+            throw new IllegalArgumentException("Unsupported API base URL scheme: " + scheme);
+        }
+
+        String host = uri.getHost();
+        boolean loopback = host != null && (host.equalsIgnoreCase("localhost")
+                || host.equals("127.0.0.1") || host.equals("::1") || host.equals("[::1]"));
+        if (sendsApiKey && !loopback) {
+            throw new IllegalArgumentException(
+                    "Refusing to send the API key over plain http to " + host
+                            + ". Use https, or clear the API key for local endpoints.");
+        }
+    }
+
     private static CompletableFuture<List<QuestionManager.Question>> requestOnce(String prompt, boolean useSchema) {
         // リクエスト組み立て中の同期例外(不正なBase URL等)もfailedFutureに変換する
         try {
@@ -83,8 +110,11 @@ public class OpenAiQuestionGenerator {
                 baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
             }
 
+            URI endpoint = URI.create(baseUrl + "/v1/chat/completions");
+            requireSafeEndpoint(endpoint, !apiKey.isBlank());
+
             HttpRequest.Builder builder = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/v1/chat/completions"))
+                    .uri(endpoint)
                     .timeout(REQUEST_TIMEOUT)
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(buildRequestBody(model, prompt, useSchema)));

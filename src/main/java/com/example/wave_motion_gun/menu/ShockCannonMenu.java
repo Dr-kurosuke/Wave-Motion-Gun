@@ -60,7 +60,8 @@ public class ShockCannonMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         if (this.blockEntity == null || this.blockEntity.getLevel() == null) return false;
-        return stillValid(ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos()), player, BlockInit.SHOCK_CANNON.get());
+        return com.example.wave_motion_gun.compat.VSCompat.stillValidContainer(
+                blockEntity.getLevel(), blockEntity.getBlockPos(), player, BlockInit.SHOCK_CANNON.get());
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
