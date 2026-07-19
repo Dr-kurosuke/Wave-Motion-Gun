@@ -16,9 +16,13 @@ plugins {
 apply plugin: 'net.minecraftforge.gradle'
 
 
-version = '1.0.0'
-group = 'com.example.wave_motion_gun_mod' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'wave_motion_gun_mod-1.20.1'
+// 成果物名: wave_motion_gun_mod-<MCバージョン>-<Modバージョン>.jar
+// 例) wave_motion_gun_mod-1.20.1-1.0.0.jar
+// version には MCバージョンを含めない。ここは mods.toml の ${file.jarVersion} に
+// そのまま入るため、Mod自身のバージョンだけを表す必要がある。
+version = mod_version
+group = 'com.dr_kurosuke.wave_motion_gun_mod'
+archivesBaseName = "wave_motion_gun_mod-${mc_version}"
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -234,11 +238,11 @@ jar {
     manifest {
         attributes([
                 "Specification-Title"     : "wave_motion_gun_mod",
-                "Specification-Vendor"    : "wave_motion_gun_modsareus",
+                "Specification-Vendor"    : "Dr-kurosuke",
                 "Specification-Version"   : "1", // We are version 1 of ourselves
                 "Implementation-Title"    : project.name,
                 "Implementation-Version"  : project.jar.archiveVersion,
-                "Implementation-Vendor"   : "wave_motion_gun_modsareus",
+                "Implementation-Vendor"   : "Dr-kurosuke",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
