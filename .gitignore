@@ -26,3 +26,6 @@ forge*changelog.txt
 
 # macOS
 .DS_Store
+
+# ローカル引き継ぎメモ(公開しない)
+HANDOFF.md
