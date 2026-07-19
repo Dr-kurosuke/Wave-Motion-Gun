@@ -3,6 +3,7 @@ package com.example.wave_motion_gun.client;
 import com.example.wave_motion_gun.blockentity.WaveCannonBlockEntity;
 import com.example.wave_motion_gun.blockentity.WaveEnergyStorageBlockEntity;
 import com.example.wave_motion_gun.client.widget.FireButton;
+import com.example.wave_motion_gun.utils.FrequencyManager;
 import com.example.wave_motion_gun.client.widget.HorizontalSwitch;
 import com.example.wave_motion_gun.client.widget.InjectorLever;
 import com.example.wave_motion_gun.client.widget.MechanicalSwitch;
@@ -187,7 +188,10 @@ public class TriggerUnitScreen extends VirtualScaledScreen<TriggerUnitMenu> {
 
         this.frequencyBox = new EditBox(this.font, freqCenterX - boxW / 2, FREQ_Y + 40, boxW, 20, new TextComponent("Freq"));
         this.frequencyBox.setValue(freqVal);
-        this.frequencyBox.setFilter(s -> s.matches("\\d*"));
+        // 上限は FrequencyManager.MAX_FREQUENCY (16bit同期の制約)。超過入力は受け付けない
+        // 先に桁数で弾くことで parseInt のオーバーフロー/例外を防ぐ (MAX_FREQUENCY は5桁)
+        this.frequencyBox.setFilter(s -> s.matches("\\d*") && s.length() <= 5
+                && (s.isEmpty() || Integer.parseInt(s) <= FrequencyManager.MAX_FREQUENCY));
         this.frequencyBox.setBordered(true);
         this.addRenderableWidget(frequencyBox);
 

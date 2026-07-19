@@ -20,6 +20,12 @@ import java.util.Set;
 @Mod.EventBusSubscriber
 public class FrequencyManager {
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    /**
+     * 周波数の上限。ContainerData は ClientboundContainerSetDataPacket の writeShort で
+     * 同期されるため、16bit に収まらない値はクライアント側で負値に化ける。
+     */
+    public static final int MAX_FREQUENCY = Short.MAX_VALUE;
     private static final Map<Integer, Set<MonitoringUnitBlockEntity>> receivers = new HashMap<>();
     private static final Map<Integer, Set<TriggerUnitBlockEntity>> triggers = new HashMap<>();
 
@@ -85,8 +91,8 @@ public class FrequencyManager {
     /** 発射者(実績付与用)を指定して信号を送る。firerはnull可 */
     public static void sendSignal(int freq, int type, @Nullable ServerPlayer firer) {
         // getReceiversは未登録ならemptySetを返すため、事前のcontainsKeyチェックは不要
-        // 受信側のリストをコピーして反復処理
-        for (MonitoringUnitBlockEntity be : new HashSet<>(getReceivers(freq))) {
+        // getReceivers がコピーを返すため、ここでの再コピーは不要
+        for (MonitoringUnitBlockEntity be : getReceivers(freq)) {
             // getReceiversで厳密なチェック済みのため、ここでは基本的なチェックのみで良いが念のため
             if (be != null && !be.isRemoved() && be.hasLevel()) {
                 be.activate(type, firer);
@@ -124,7 +130,9 @@ public class FrequencyManager {
             receivers.remove(freq);
             return Collections.emptySet();
         }
-        return set;
+        // 内部セットの実体を返すとCMEになる。反復中に getBlockEntity() が未ロードチャンクを
+        // 同期ロードし、そこに MonitoringUnit があれば onLoad→register でこのセットが変更されるため。
+        return new HashSet<>(set);
     }
 
     private static void cleanUp(int freq) {

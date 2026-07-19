@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.Mth;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -116,6 +117,8 @@ public class MonitoringUnitBlockEntity extends BlockEntity implements MenuProvid
     }
 
     public void setFrequency(int newFreq) {
+        // ContainerData は 16bit で同期されるため、収まらない値はクライアントで負値に化ける
+        newFreq = Mth.clamp(newFreq, 0, FrequencyManager.MAX_FREQUENCY);
         if (this.frequency != newFreq) {
             if (level != null && !level.isClientSide) {
                 FrequencyManager.updateFrequency(this.frequency, newFreq, this);
@@ -339,7 +342,8 @@ public class MonitoringUnitBlockEntity extends BlockEntity implements MenuProvid
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        this.frequency = tag.getInt("Frequency");
+        // 旧セーブに範囲外の値が残っている場合の救済 (16bit同期で負値に化けるのを防ぐ)
+        this.frequency = Mth.clamp(tag.getInt("Frequency"), 0, FrequencyManager.MAX_FREQUENCY);
         if (tag.contains("DamageValue")) this.damageValue = tag.getInt("DamageValue");
         if (tag.contains("IsDestructive")) this.isDestructive = tag.getBoolean("IsDestructive");
         if (tag.contains("InnerColor")) this.innerColor = tag.getInt("InnerColor");

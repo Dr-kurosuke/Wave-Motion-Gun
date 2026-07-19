@@ -112,6 +112,8 @@ public class TriggerUnitBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     public void setStorageData(int newFreq, int newMode) {
+        // ContainerData は 16bit で同期されるため、収まらない値はクライアントで負値に化ける
+        newFreq = Mth.clamp(newFreq, 0, FrequencyManager.MAX_FREQUENCY);
         if (this.targetFrequency != newFreq) {
             if (level != null && !level.isClientSide) {
                 FrequencyManager.updateTriggerFrequency(this.targetFrequency, newFreq, this);
@@ -359,6 +361,8 @@ public class TriggerUnitBlockEntity extends BlockEntity implements MenuProvider 
         } else if (tag.contains("StorageFreq")) {
             this.targetFrequency = tag.getInt("StorageFreq");
         }
+        // 旧セーブに範囲外の値が残っている場合の救済 (16bit同期で負値に化けるのを防ぐ)
+        this.targetFrequency = Mth.clamp(this.targetFrequency, 0, FrequencyManager.MAX_FREQUENCY);
 
         this.storageMode = tag.getInt("StorageMode");
         this.overheatTimer = tag.getInt("OverheatTimer");

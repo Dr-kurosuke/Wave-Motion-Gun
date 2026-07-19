@@ -79,7 +79,7 @@ public class TriggerUpdatePacket {
                 BlockEntity be = playerLevel.getBlockEntity(msg.pos);
                 if (be instanceof TriggerUnitBlockEntity trigger) {
                     // targetFrequency を更新 (StorageModeは0-2のみ有効。lightLevelはsetter側でクランプ済み)
-                    trigger.setStorageData(Math.max(0, msg.targetFreq),
+                    trigger.setStorageData(net.minecraft.util.Mth.clamp(msg.targetFreq, 0, FrequencyManager.MAX_FREQUENCY),
                             net.minecraft.util.Mth.clamp(msg.storageMode, 0, 2));
                     trigger.setLightLevel(msg.lightLevel);
 
@@ -87,31 +87,41 @@ public class TriggerUpdatePacket {
                         // 発射者を実績付与のために引き渡す
                         trigger.fireCannonSignal(sender);
                     }
-                }
-            }
 
-            // 2. ストレージへの遠隔設定反映 (MonitoringUnit経由)
-            // 統合された周波数でモニターを探す
-            Set<MonitoringUnitBlockEntity> monitors = FrequencyManager.getReceivers(msg.targetFreq);
-
-            if (monitors != null) {
-                for (MonitoringUnitBlockEntity monitor : monitors) {
-                    if (monitor == null || monitor.isRemoved() || monitor.getLevel() == null) continue;
-                    if (!monitor.getLevel().isLoaded(monitor.getBlockPos())) continue;
-
-                    // モニターに紐付いているストレージを取得
-                    WaveEnergyStorageBlockEntity storage = monitor.getNearbyStorage();
-                    if (storage != null) {
-                        // 【修正】直接フィールド代入を廃止し、Setter経由で変更する
-                        // Setter内でSE再生と状態更新(setChanged/sendBlockUpdated)が行われる
-                        storage.setCircuitToWMG(msg.circuitToWMG);
-                        storage.setEmergencyValves(msg.emergencyValves);
-                        storage.setInletSafety(msg.inletSafety);
-                        storage.setOutletSafety(msg.outletSafety);
-                    }
+                    // 2. ストレージへの遠隔設定反映 (MonitoringUnit経由)
+                    // 【重要】必ず実在するトリガーユニット経由でのみ行う。
+                    // msg.targetFreq を直接使うと、ブロックを一つも持たないクライアントが
+                    // 全次元の任意周波数のストレージを遠隔操作できてしまう。
+                    applyStorageSettings(msg, trigger.targetFrequency, playerLevel);
                 }
             }
         });
         ctx.get().setPacketHandled(true);
+    }
+
+    /**
+     * トリガーユニットに紐付く周波数のモニタリングユニット経由で、ストレージ設定を反映する。
+     * 周波数マップはプロセス全体で共有されるため、送信者と同一次元のモニターのみを対象とする。
+     */
+    private static void applyStorageSettings(TriggerUpdatePacket msg, int freq, ServerLevel playerLevel) {
+        Set<MonitoringUnitBlockEntity> monitors = FrequencyManager.getReceivers(freq);
+        if (monitors == null) return;
+
+        for (MonitoringUnitBlockEntity monitor : monitors) {
+            if (monitor == null || monitor.isRemoved() || monitor.getLevel() == null) continue;
+            if (monitor.getLevel() != playerLevel) continue; // 別次元への波及を防ぐ
+            if (!monitor.getLevel().isLoaded(monitor.getBlockPos())) continue;
+
+            // モニターに紐付いているストレージを取得
+            WaveEnergyStorageBlockEntity storage = monitor.getNearbyStorage();
+            if (storage != null) {
+                // 直接フィールド代入を廃止し、Setter経由で変更する
+                // Setter内でSE再生と状態更新(setChanged/sendBlockUpdated)が行われる
+                storage.setCircuitToWMG(msg.circuitToWMG);
+                storage.setEmergencyValves(msg.emergencyValves);
+                storage.setInletSafety(msg.inletSafety);
+                storage.setOutletSafety(msg.outletSafety);
+            }
+        }
     }
 }
