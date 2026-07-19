@@ -50,7 +50,12 @@ minecraft {
     // These can be tweaked, removed, or duplicated as needed.
     runs {
         client {
-            workingDirectory project.file('run')
+            // 【重要】サーバーと同時起動できるよう、作業ディレクトリを分ける。
+            // 同じ 'run' を共有していると logs/latest.log や options.txt が衝突し、
+            // runServer と runClient を並行して動かせない(=localhostでの
+            // 専用サーバー・マルチプレイ検証ができない)。
+            // サーバー側は既存のワールドと設定を保つため 'run' のまま据え置く。
+            workingDirectory project.file('run/client')
 
             // 【追加】本番配布のMixin付きMod(VS2等)を開発環境で動かすための定番設定:
             // SRG名のrefmapを実行時にofficial名へ再マッピングする
@@ -80,7 +85,20 @@ minecraft {
             }
         }
 
+        // 【追加】2人目のプレイヤー用クライアント (runClientAlt)。
+        // プレイヤー同士の相互作用は1人では再現できないため用意する
+        // (例: 他人が起動したレディへの回答による報酬横取り、他人の周波数ネットワークへの相乗り)。
+        // 開発クライアントの既定ユーザー名は 'Dev' 固定で、同名だとサーバーに弾かれるため
+        // --username で別名を与える。作業ディレクトリも1人目と分ける。
+        clientAlt {
+            parent minecraft.runs.client
+            workingDirectory project.file('run/client2')
+            args '--username', 'Dev2'
+        }
+
         server {
+            // クライアントを 'run/client' へ移したので、サーバーは 'run' のまま。
+            // 既存のワールド・server.properties・configをそのまま使い続けられる
             workingDirectory project.file('run')
 
             // 【追加】本番配布のMixin付きMod(VS2等)を開発環境で動かすための定番設定:
@@ -272,9 +290,19 @@ tasks.withType(JavaCompile).configureEach {
     options.compilerArgs << "-Xlint:deprecation"
 }
 // 開発用Mod(VS2)をrun/modsへ配置する。runClient/runServer(IDEのprepare含む)の前に自動実行される
-tasks.register('copyDevMods', Copy) {
-    from configurations.devModsFolder
-    into 'run/mods'
+// FMLは「各run構成の workingDirectory/mods」しか見ないため、
+// クライアントを別ディレクトリへ分けた分だけコピー先も増やす必要がある。
+// ここを増やし忘れると、そのrun構成だけVS2が読み込まれず原因不明の挙動差になる。
+def devModDirs = ['run/mods', 'run/client/mods', 'run/client2/mods']
+tasks.register('copyDevMods') {
+    doLast {
+        devModDirs.each { dest ->
+            copy {
+                from configurations.devModsFolder
+                into dest
+            }
+        }
+    }
 }
 tasks.matching { it.name.startsWith('run') || it.name.startsWith('prepareRun') }.configureEach {
     dependsOn 'copyDevMods'
