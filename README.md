@@ -8,7 +8,7 @@
 > This is an unofficial, non-commercial fan-made mod, not affiliated with or endorsed by the "Space Battleship Yamato" franchise or its rights holders. No official logos, artwork, or music are included.
 
 > ℹ️ **バージョンについて**
-> これは **1.18.2** ブランチです。**船上での主砲運用には既知の不具合があります**(周波数反映・発射方向)。この問題は **1.20.1版で修正済み**です。船に載せて使う場合は 1.20.1版(`main` ブランチ)を推奨します。
+> これは **1.18.2** ブランチです。**そのまま問題なく遊べます**。船上での主砲運用については、1.20.1版で Valkyrien Skies の座標対応を強化していますが、1.18.2でも実機テストで不具合は確認されていません(念のための補足です)。
 
 ## 特徴
 
@@ -29,7 +29,7 @@
 
 いずれも**必須ではありません**。
 
-- **Valkyrien Skies 2** + **Eureka!** … 船に主砲を載せる遊び(※1.18.2は不具合あり)
+- **Valkyrien Skies 2** + **Eureka!** … 船に主砲を載せる遊び
 - **Mekanism** など FE(Forge Energy)を供給できる工業Mod … 主砲のエネルギー源
 
 ## AIクイズ機能について
