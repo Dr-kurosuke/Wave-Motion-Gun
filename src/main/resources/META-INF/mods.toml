@@ -22,17 +22,22 @@ description='''
 '''
 
 # --- 必須依存 ---
+# Forge 47系は 1.20.1 専用 (1.20.2=48 / 1.20.4=49 / 1.20.6=50 と対応が分かれる)。
+# 上限を開けると非対応のMCバージョンでロードが通ってしまい、そのままクラッシュする。
 [[dependencies.wave_motion_gun_mod]]
 modId="forge"
 mandatory=true
-versionRange="[47,)"
+versionRange="[47,48)"
 ordering="NONE"
 side="BOTH"
 
+# 対応は 1.20.1 のみ。[1.20.1,1.21) だと 1.20.2〜1.20.6 まで通ってしまうため、
+# 範囲ではなく単一バージョンで指定する。
+# こうしておくと非対応環境ではクラッシュせず、FMLが「対応していない」と表示して弾く。
 [[dependencies.wave_motion_gun_mod]]
 modId="minecraft"
 mandatory=true
-versionRange="[1.20.1,1.21)"
+versionRange="[1.20.1]"
 ordering="NONE"
 side="BOTH"
 
