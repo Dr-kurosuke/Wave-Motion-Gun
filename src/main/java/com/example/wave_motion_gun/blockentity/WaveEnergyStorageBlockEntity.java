@@ -72,7 +72,12 @@ public class WaveEnergyStorageBlockEntity extends BlockEntity {
     // 【追加】ピッチ・音量指定可能なサーバー側SE再生
     public void playSound(SoundEvent sound, float volume, float pitch) {
         if (this.level != null && !this.level.isClientSide) {
-            this.level.playSound(null, this.worldPosition, sound, SoundSource.BLOCKS, volume, pitch);
+            // BlockPos版に船上ブロックの座標をそのまま渡すと、プレイヤーはワールド座標に
+            // いるため音が届かない(=船上では貯蔵ユニットが完全に無音になる)。
+            // このメソッドは注入/バルブ/セーフティ/充填ループの全SEが通る唯一の経路。
+            net.minecraft.world.phys.Vec3 c =
+                    com.example.wave_motion_gun.compat.VSCompat.worldCenterOf(this.level, this.worldPosition);
+            this.level.playSound(null, c.x, c.y, c.z, sound, SoundSource.BLOCKS, volume, pitch);
         }
     }
 

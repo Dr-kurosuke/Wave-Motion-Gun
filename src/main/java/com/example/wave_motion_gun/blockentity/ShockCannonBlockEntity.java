@@ -245,7 +245,8 @@ public class ShockCannonBlockEntity extends BlockEntity implements MenuProvider 
                     playSoundHere(net.minecraft.sounds.SoundEvents.DISPENSER_FAIL, 1.0F, 0.5F);
                     // VS2船上ではプレイヤーはワールド座標側にいるため、変換後の中心で検索する
                     net.minecraft.world.phys.Vec3 center = com.example.wave_motion_gun.compat.VSCompat.worldCenterOf(level, worldPosition);
-                    level.getEntitiesOfClass(Player.class, new net.minecraft.world.phys.AABB(BlockPos.containing(center)).inflate(10)).forEach(p ->
+                    // BlockPos.containing で丸めると最大1ブロックずれるため、Vec3中心のまま使う
+                    level.getEntitiesOfClass(Player.class, net.minecraft.world.phys.AABB.ofSize(center, 21, 21, 21)).forEach(p ->
                             p.displayClientMessage(net.minecraft.network.chat.Component.translatable("message.wave_motion_gun_mod.shock.obstructed"), true));
                     return;
                 }

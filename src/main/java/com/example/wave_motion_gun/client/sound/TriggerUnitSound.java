@@ -23,9 +23,22 @@ public class TriggerUnitSound extends AbstractTickableSoundInstance {
         // 【重要】システムによる自動減衰を無効化（これで「遠すぎて聞こえない」を防ぐ）
         this.attenuation = Attenuation.NONE;
 
-        this.x = be.getBlockPos().getX() + 0.5;
-        this.y = be.getBlockPos().getY() + 0.5;
-        this.z = be.getBlockPos().getZ() + 0.5;
+        updatePosition();
+    }
+
+    /**
+     * 音源位置をワールド座標で更新する。
+     *
+     * 素のブロック座標を使うと、船上ではシップヤード座標(超遠方)になり距離減衰が破綻する。
+     * VS2未導入時や船上でない場合は worldCenterOf がそのまま中心座標を返すため、
+     * 常にこのメソッドを通してよい。
+     */
+    private void updatePosition() {
+        net.minecraft.world.phys.Vec3 c = com.example.wave_motion_gun.compat.VSCompat
+                .worldCenterOf(this.blockEntity.getLevel(), this.blockEntity.getBlockPos());
+        this.x = c.x;
+        this.y = c.y;
+        this.z = c.z;
     }
 
     @Override
@@ -35,42 +48,28 @@ public class TriggerUnitSound extends AbstractTickableSoundInstance {
             return;
         }
 
-        // 座標更新
-        this.x = this.blockEntity.getBlockPos().getX() + 0.5;
-        this.y = this.blockEntity.getBlockPos().getY() + 0.5;
-        this.z = this.blockEntity.getBlockPos().getZ() + 0.5;
+        // 座標更新 (船が動くため毎tick取り直す)
+        updatePosition();
 
         // --- 擬似的な距離減衰の実装 ---
+        // 音源・カメラともワールド座標なので、素直な距離計算で正しく減衰する。
+        // 以前あった「距離>1,000,000ならVS座標ズレとみなして音量MAX」という特例は、
+        // 400〜1,000,000の帯に落ちると無音になり、効いた場合は何百ブロック離れても
+        // 音量MAXのままという不安定なものだった。座標変換で根本解決したため削除。
         float distFactor = 1.0f;
         Entity camera = Minecraft.getInstance().getCameraEntity();
 
         if (camera != null) {
-            // プレイヤーとブロックの距離を計算
             double distSq = camera.distanceToSqr(this.x, this.y, this.z);
 
-            // 減衰の設定（例：最大20ブロック離れたら聞こえなくなる）
+            // 減衰の設定（最大20ブロック離れたら聞こえなくなる）
             float maxDist = 20.0F;
 
-            // VS対策: 距離が異常に遠い(Shipyard座標ズレ)場合は、
-            // とりあえず減衰させずに聞こえるようにする（あるいは諦めて0にする）判断が必要。
-            // ここでは「距離が100ブロック以内なら減衰計算を適用、それ以上なら近くにいるとみなす（バグ回避）」
-            // という安全策をとるか、単純に計算するかですが、まずは単純計算で試します。
-
-            // ※もしこれでまた「音が鳴らない」場合は、VSの座標変換がうまくいっていないので
-            // distSq が数千万になっている可能性があります。その時は以下のif文を調整します。
-
             if (distSq < maxDist * maxDist) {
-                // 距離が近い場合：距離に応じて音量を下げる
                 float dist = (float) Math.sqrt(distSq);
                 distFactor = 1.0F - (dist / maxDist);
                 if (distFactor < 0) distFactor = 0;
-            } else if (distSq > 1000000) {
-                // 距離が1000以上（異常値＝VS座標ズレの可能性）の場合
-                // プレイヤーが船の上にいるなら、本来は近くにいるはずなので音量MAXにする特例措置
-                // （これがないと、船の上でも座標系がズレて無音になる可能性があります）
-                distFactor = 1.0f;
             } else {
-                // 通常の「遠くにいる」場合
                 distFactor = 0.0f;
             }
         }

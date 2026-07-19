@@ -49,7 +49,15 @@ public class CommunicationBeaconBlock extends Block {
         }
 
         if (!level.isClientSide) {
-            if (!level.getEntitiesOfClass(MessengerEntity.class, new net.minecraft.world.phys.AABB(pos).inflate(10)).isEmpty()) {
+            // VS2の船上ではブロックがシップヤード座標にあるため、エンティティを扱う処理は
+            // すべてワールド座標へ変換した基準点で行う。素のposを使うと、レディが遠方の
+            // シップヤードに湧いてプレイヤーから見えず、以後の32ブロック判定も必ず失敗する。
+            net.minecraft.world.phys.Vec3 worldCenter =
+                    com.example.wave_motion_gun.compat.VSCompat.worldCenterOf(level, pos);
+
+            // 21 = 従来の new AABB(pos).inflate(10) と同じ一辺 (pos基準で±10 + 自ブロック1)
+            if (!level.getEntitiesOfClass(MessengerEntity.class,
+                    net.minecraft.world.phys.AABB.ofSize(worldCenter, 21, 21, 21)).isEmpty()) {
                 player.displayClientMessage(net.minecraft.network.chat.Component.translatable("message.wave_motion_gun_mod.beacon.busy"), true);
                 return InteractionResult.FAIL;
             }
@@ -89,10 +97,15 @@ public class CommunicationBeaconBlock extends Block {
 
             }
 
-            level.playSound(null, pos, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 1.0F, 1.0F);
+            level.playSound(null, worldCenter.x, worldCenter.y, worldCenter.z,
+                    SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 1.0F, 1.0F);
 
             MessengerEntity lady = new MessengerEntity(EntityInit.MESSENGER.get(), level);
-            lady.setPos(pos.getX() + 0.5, pos.getY() + 2.0, pos.getZ() + 0.5);
+            // 「ブロックの1.5上」はオフセットを付けてから変換する。worldCenter.y+1.5 だと
+            // ワールドの上になり、船が傾いているとビーコンの真上からずれてしまう。
+            net.minecraft.world.phys.Vec3 spawnPos = com.example.wave_motion_gun.compat.VSCompat
+                    .toWorldPos(level, net.minecraft.world.phys.Vec3.atCenterOf(pos).add(0, 1.5, 0));
+            lady.setPos(spawnPos.x, spawnPos.y, spawnPos.z);
             lady.lookAt(player, 180, 180);
             level.addFreshEntity(lady);
 
@@ -104,7 +117,12 @@ public class CommunicationBeaconBlock extends Block {
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, net.minecraft.util.RandomSource random) {
         if (random.nextInt(5) == 0) {
-            level.addParticle(ParticleTypes.END_ROD, pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5, 0, 0.1, 0);
+            // パーティクルはワールド座標系に描かれるため、船上ブロックでは変換が必要
+            // (素のposだと演出が遠方のシップヤードに出て見えない)。
+            // 高さのオフセットも変換前に足す(船が傾いても真上に出すため)。
+            net.minecraft.world.phys.Vec3 c = com.example.wave_motion_gun.compat.VSCompat
+                    .toWorldPos(level, net.minecraft.world.phys.Vec3.atCenterOf(pos).add(0, 1.0, 0));
+            level.addParticle(ParticleTypes.END_ROD, c.x, c.y, c.z, 0, 0.1, 0);
         }
     }
 }

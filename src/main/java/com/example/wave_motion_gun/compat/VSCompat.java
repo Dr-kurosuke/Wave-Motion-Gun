@@ -113,13 +113,40 @@ public final class VSCompat {
                     target.x, target.y, target.z);
         }
 
+        /**
+         * 呼び出し失敗の回数。毎tick呼ばれる経路があるためログは間引くが、
+         * 「1回だけ」にすると恒久的な故障が以後まったくログに出なくなる。
+         * 変換に失敗したときの症状は「レディが湧かない・音が鳴らない・弾が出ない」という
+         * 無反応であり例外のように目立たないため、手がかりを定期的に残す必要がある。
+         */
+        private static final java.util.concurrent.atomic.AtomicLong invokeFailures =
+                new java.util.concurrent.atomic.AtomicLong();
+
         static Vec3 toWorld(Level level, Vec3 pos) {
             if (TO_WORLD == null) return pos;
             try {
                 return (Vec3) TO_WORLD.invokeExact(level, pos);
             } catch (Throwable t) {
-                throw new RuntimeException("VS2 toWorldCoordinates call failed", t);
+                // lookup失敗時は「変換なしで継続」なのに、invoke失敗時だけ例外で落とすのは不整合。
+                // この経路はパーティクル等の毎tick処理からも呼ばれるため、投げるとログが溢れるか
+                // サーバーが落ちる。変換なしにフォールバックする。
+                long n = invokeFailures.incrementAndGet();
+                // 初回と、以後は指数的に間引いて記録する(1, 10, 100, 1000, ...回目)
+                if (n == 1 || isPowerOfTen(n)) {
+                    com.mojang.logging.LogUtils.getLogger()
+                            .warn("[wave_motion_gun] VS2 toWorldCoordinates call failed ({} times); "
+                                    + "falling back to raw coordinates "
+                                    + "(ship-mounted blocks will misbehave)", n, t);
+                }
+                return pos;
             }
+        }
+
+        private static boolean isPowerOfTen(long n) {
+            for (long p = 10; p <= n; p *= 10) {
+                if (p == n) return true;
+            }
+            return false;
         }
     }
 }

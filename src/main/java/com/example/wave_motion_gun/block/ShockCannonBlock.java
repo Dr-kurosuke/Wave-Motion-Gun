@@ -117,7 +117,11 @@ public class ShockCannonBlock extends BaseEntityBlock {
             if (be instanceof ShockCannonBlockEntity cannon) {
                 cannon.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(handler -> {
                     for (int i = 0; i < handler.getSlots(); i++) {
-                        Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), handler.getStackInSlot(i));
+                        // 船上ではブロックがシップヤード座標にあるため、ドロップ位置をワールド座標へ変換する
+                            // (変換しないと中身が遠方のシップヤードに落ちて回収できない)
+                            net.minecraft.world.phys.Vec3 dropPos =
+                                    com.example.wave_motion_gun.compat.VSCompat.worldCenterOf(level, pos);
+                            Containers.dropItemStack(level, dropPos.x, dropPos.y, dropPos.z, handler.getStackInSlot(i));
                     }
                 });
             }

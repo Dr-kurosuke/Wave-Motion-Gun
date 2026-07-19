@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Containers;
@@ -101,29 +102,43 @@ public class SupplyCrateBlock extends FallingBlock implements EntityBlock {
                         // メッセージは出さずに自然に開く、あるいは「空のためロック解除」と出しても良い
                         // player.displayClientMessage(Component.literal("§a空のコンテナ: ロックが解除されました"), true);
                         NetworkHooks.openScreen((ServerPlayer) player, crate, pos);
-                        level.playSound(null, pos, SoundEvents.BARREL_OPEN, SoundSource.BLOCKS, 1.0f, 1.0f);
+                        playSoundAt(level, pos, SoundEvents.BARREL_OPEN, SoundSource.BLOCKS, 1.0f, 1.0f);
                         return InteractionResult.SUCCESS;
                     }
 
                     // 3. データパッドによる解除試行
                     if (tryUnlockWithPad(player.getItemInHand(hand), pos, crate)) {
-                        level.playSound(null, pos, SoundEvents.PLAYER_LEVELUP, SoundSource.BLOCKS, 1.0f, 1.0f);
+                        playSoundAt(level, pos, SoundEvents.PLAYER_LEVELUP, SoundSource.BLOCKS, 1.0f, 1.0f);
                         player.displayClientMessage(net.minecraft.network.chat.Component.translatable("message.wave_motion_gun_mod.crate.unlocked"), true);
                         NetworkHooks.openScreen((ServerPlayer) player, crate, pos);
-                        level.playSound(null, pos, SoundEvents.BARREL_OPEN, SoundSource.BLOCKS, 1.0f, 1.0f);
+                        playSoundAt(level, pos, SoundEvents.BARREL_OPEN, SoundSource.BLOCKS, 1.0f, 1.0f);
                     } else {
-                        level.playSound(null, pos, SoundEvents.CHEST_LOCKED, SoundSource.BLOCKS, 1.0f, 1.0f);
+                        playSoundAt(level, pos, SoundEvents.CHEST_LOCKED, SoundSource.BLOCKS, 1.0f, 1.0f);
                         player.displayClientMessage(net.minecraft.network.chat.Component.translatable("message.wave_motion_gun_mod.crate.locked"), true);
                         return InteractionResult.FAIL;
                     }
                 } else {
                     // 既にロック解除済みの場合
                     NetworkHooks.openScreen((ServerPlayer) player, crate, pos);
-                    level.playSound(null, pos, SoundEvents.BARREL_OPEN, SoundSource.BLOCKS, 1.0f, 1.0f);
+                    playSoundAt(level, pos, SoundEvents.BARREL_OPEN, SoundSource.BLOCKS, 1.0f, 1.0f);
                 }
             }
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    /**
+     * 効果音をワールド座標で鳴らす。
+     *
+     * BlockPos版に船上ブロックの座標をそのまま渡すと、プレイヤーはワールド座標にいるため
+     * 音が届かない。解錠成否(PLAYER_LEVELUP / CHEST_LOCKED)が音でしか分からないため、
+     * 船上で無音になると操作結果が判別できなくなる。
+     */
+    private static void playSoundAt(Level level, BlockPos pos, SoundEvent sound,
+                                    SoundSource source, float volume, float pitch) {
+        net.minecraft.world.phys.Vec3 c =
+                com.example.wave_motion_gun.compat.VSCompat.worldCenterOf(level, pos);
+        level.playSound(null, c.x, c.y, c.z, sound, source, volume, pitch);
     }
 
     /**
@@ -152,7 +167,11 @@ public class SupplyCrateBlock extends FallingBlock implements EntityBlock {
                 if (!crate.isFalling) {
                     crate.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(handler -> {
                         for (int i = 0; i < handler.getSlots(); i++) {
-                            Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), handler.getStackInSlot(i));
+                            // 船上ではブロックがシップヤード座標にあるため、ドロップ位置をワールド座標へ変換する
+                            // (変換しないと中身が遠方のシップヤードに落ちて回収できない)
+                            net.minecraft.world.phys.Vec3 dropPos =
+                                    com.example.wave_motion_gun.compat.VSCompat.worldCenterOf(level, pos);
+                            Containers.dropItemStack(level, dropPos.x, dropPos.y, dropPos.z, handler.getStackInSlot(i));
                         }
                     });
                 }

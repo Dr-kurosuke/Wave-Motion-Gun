@@ -73,10 +73,14 @@ public class SeatBlock extends Block {
             return InteractionResult.SUCCESS;
         }
 
-        // 既に座っているエンティティがいないか確認
-        List<SeatEntity> seats = level.getEntitiesOfClass(SeatEntity.class, new AABB(pos));
-        if (!seats.isEmpty()) {
-            return InteractionResult.PASS; // 既に誰か座っていれば何もしない
+        // 既に座っているエンティティがいないか確認。
+        // 座席エンティティはワールド座標に置かれる(船上ではブロックのシップヤード座標と一致しない)ため、
+        // 座標での検索ではなく「どのブロックの座席か」で判定する。
+        for (SeatEntity existing : level.getEntitiesOfClass(SeatEntity.class,
+                AABB.ofSize(com.example.wave_motion_gun.compat.VSCompat.worldCenterOf(level, pos), 3, 3, 3))) {
+            if (existing.getSeatBlockPos().equals(pos)) {
+                return InteractionResult.PASS; // 既に誰か座っていれば何もしない
+            }
         }
 
         // 座る処理を実行
