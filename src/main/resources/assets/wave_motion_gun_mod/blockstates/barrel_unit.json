@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=north": { "model": "wave_motion_gun_mod:block/barrel_unit", "y": 180 },
+    "facing=south": { "model": "wave_motion_gun_mod:block/barrel_unit" },
+    "facing=east":  { "model": "wave_motion_gun_mod:block/barrel_unit", "y": 270 },
+    "facing=west":  { "model": "wave_motion_gun_mod:block/barrel_unit", "y": 90 },
+    "facing=up":    { "model": "wave_motion_gun_mod:block/barrel_unit", "x": 270, "y": 180 },
+    "facing=down":  { "model": "wave_motion_gun_mod:block/barrel_unit", "x": 90, "y": 180 }
+  }
+}

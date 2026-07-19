@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "minecraft:book" },
+    { "item": "wave_motion_gun_mod:raw_cosmo_ore" }
+  ],
+  "result": {
+    "item": "wave_motion_gun_mod:shock_manual"
+  }
+}

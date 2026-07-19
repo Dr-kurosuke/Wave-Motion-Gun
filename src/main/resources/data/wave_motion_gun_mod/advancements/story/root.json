@@ -1,0 +1,27 @@
+{
+  "display": {
+    "icon": {
+      "item": "wave_motion_gun_mod:communication_beacon"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.root.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.root.description"
+    },
+    "frame": "task",
+    "background": "minecraft:textures/block/polished_blackstone.png",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "tick": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "wave_motion_gun_mod:communication_beacon"
+    ]
+  }
+}

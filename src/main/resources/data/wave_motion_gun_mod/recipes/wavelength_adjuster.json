@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SXS",
+    "GYG",
+    "QZQ"
+  ],
+  "key": {
+    "S": { "item": "wave_motion_gun_mod:cosmo_steel" },
+    "G": { "item": "wave_motion_gun_mod:gravity_lens" },
+    "Q": { "item": "wave_motion_gun_mod:quantum_unit" },
+    "X": { "item": "minecraft:red_stained_glass" },
+    "Y": { "item": "minecraft:blue_stained_glass" },
+    "Z": { "item": "minecraft:green_stained_glass" }
+  },
+  "result": {
+    "item": "wave_motion_gun_mod:wavelength_adjuster",
+    "count": 1
+  }
+}

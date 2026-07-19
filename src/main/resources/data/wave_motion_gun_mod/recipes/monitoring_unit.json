@@ -1,0 +1,18 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"SGS",
+		"SQS",
+		"SRS"
+	],
+	"key": {
+		"S": { "item": "wave_motion_gun_mod:cosmo_steel" },
+		"G": { "item": "minecraft:glass_pane" },
+		"Q": { "item": "wave_motion_gun_mod:quantum_unit" },
+		"R": { "item": "minecraft:redstone_block" }
+	},
+	"result": {
+		"item": "wave_motion_gun_mod:monitoring_unit",
+		"count": 1
+	}
+}

@@ -1,0 +1,20 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:ender_eye"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.first_contact.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.first_contact.description"
+    },
+    "frame": "task"
+  },
+  "parent": "wave_motion_gun_mod:story/craft_beacon",
+  "criteria": {
+    "code_granted": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

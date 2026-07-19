@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=north": { "model": "wave_motion_gun_mod:block/seat_block" },
+    "facing=south": { "model": "wave_motion_gun_mod:block/seat_block", "y": 180 },
+    "facing=east":  { "model": "wave_motion_gun_mod:block/seat_block", "y": 90 },
+    "facing=west":  { "model": "wave_motion_gun_mod:block/seat_block", "y": 270 },
+    "facing=up":    { "model": "wave_motion_gun_mod:block/seat_block", "x": 270 },
+    "facing=down":  { "model": "wave_motion_gun_mod:block/seat_block", "x": 90 }
+  }
+}

@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"STS",
+		"TCT",
+		"STS"
+	],
+	"key": {
+		"S": { "item": "wave_motion_gun_mod:cosmo_steel" },
+		"T": { "item": "wave_motion_gun_mod:tachyon_crystal" },
+		"C": { "item": "wave_motion_gun_mod:wave_core" }
+	},
+	"result": {
+		"item": "wave_motion_gun_mod:wave_energy_storage",
+		"count": 1
+	}
+}

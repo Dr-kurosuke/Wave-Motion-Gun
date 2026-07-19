@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " I ",
+    "IRI",
+    " I "
+  ],
+  "key": {
+    "I": { "item": "minecraft:iron_ingot" },
+    "R": { "item": "wave_motion_gun_mod:raw_cosmo_ore" }
+  },
+  "result": {
+    "item": "wave_motion_gun_mod:cosmo_blend",
+    "count": 1
+  }
+}

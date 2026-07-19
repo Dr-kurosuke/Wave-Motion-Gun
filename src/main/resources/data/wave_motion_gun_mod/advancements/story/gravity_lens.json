@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "item": "wave_motion_gun_mod:gravity_lens"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.gravity_lens.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.gravity_lens.description"
+    },
+    "frame": "task"
+  },
+  "parent": "wave_motion_gun_mod:story/tachyon_crystal",
+  "criteria": {
+    "has_gravity_lens": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "wave_motion_gun_mod:gravity_lens"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

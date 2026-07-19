@@ -1,0 +1,300 @@
+buildscript {
+    repositories {
+        // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
+        maven { url = 'https://maven.minecraftforge.net' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+    }
+}
+// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+plugins {
+    id 'eclipse'
+    id 'maven-publish'
+}
+apply plugin: 'net.minecraftforge.gradle'
+
+
+version = '1.0'
+group = 'com.yourname.wave_motion_gun_mod' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = 'wave_motion_gun_mod'
+
+// Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
+minecraft {
+    // The mappings can be changed at any time and must be in the following format.
+    // Channel:   Version:
+    // official   MCVersion             Official field/method names from Mojang mapping files
+    // parchment  YYYY.MM.DD-MCVersion  Open community-sourced parameter names and javadocs layered on top of official
+    //
+    // You must be aware of the Mojang license when using the 'official' or 'parchment' mappings.
+    // See more information here: https://github.com/MinecraftForge/MCPConfig/blob/master/Mojang.md
+    //
+    // Parchment is an unofficial project maintained by ParchmentMC, separate from MinecraftForge
+    // Additional setup is needed to use their mappings: https://github.com/ParchmentMC/Parchment/wiki/Getting-Started
+    //
+    // Use non-default mappings at your own risk. They may not always work.
+    // Simply re-run your setup task after changing the mappings to update your workspace.
+    mappings channel: 'official', version: '1.18.2'
+
+    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
+
+    // Default run configurations.
+    // These can be tweaked, removed, or duplicated as needed.
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            // The markers can be added/remove as needed separated by commas.
+            // "SCAN": For mods scan.
+            // "REGISTRIES": For firing of registry events.
+            // "REGISTRYDUMP": For getting the contents of all registries.
+            property 'forge.logging.markers', 'REGISTRIES'
+
+            // Recommended logging level for the console
+            // You can set various levels here.
+            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
+            property 'forge.logging.console.level', 'debug'
+
+            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+            // property 'forge.enabledGameTestNamespaces', 'wave_motion_gun_mod'
+            property 'forge.enabledGameTestNamespaces', 'wave_motion_gun_mod'
+
+            // 【追加】外部Mod (VS2等) のMixinを開発環境で正しく適用するための設定
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
+            mods {
+                wave_motion_gun_mod {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'REGISTRIES'
+
+            property 'forge.logging.console.level', 'debug'
+
+            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+            //property 'forge.enabledGameTestNamespaces', 'wave_motion_gun_mod'
+            property 'forge.enabledGameTestNamespaces', 'wave_motion_gun_mod'
+
+            // 【追加】外部Mod (VS2等) のMixinを開発環境で正しく適用するための設定
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
+            mods {
+                wave_motion_gun_mod {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        // This run config launches GameTestServer and runs all registered gametests, then exits.
+        // By default, the server will crash when no gametests are provided.
+        // The gametest system is also enabled by default for other run configs under the /test command.
+        gameTestServer {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            // The markers can be added/remove as needed separated by commas.
+            // "SCAN": For mods scan.
+            // "REGISTRIES": For firing of registry events.
+            // "REGISTRYDUMP": For getting the contents of all registries.
+            property 'forge.logging.markers', 'REGISTRIES'
+
+            // Recommended logging level for the console
+            // You can set various levels here.
+            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
+            property 'forge.logging.console.level', 'debug'
+
+            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+            property 'forge.enabledGameTestNamespaces', 'wave_motion_gun_mod'
+
+            mods {
+                wave_motion_gun_mod {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'REGISTRIES'
+
+            property 'forge.logging.console.level', 'debug'
+
+            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
+            args '--mod', 'wave_motion_gun_mod', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+
+            mods {
+                wave_motion_gun_mod {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+// Include resources generated by data generators.
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+repositories {
+    // Put repositories for dependencies here
+    // ForgeGradle automatically adds the Forge maven and Maven Central for you
+    // 【追加】JEIのMavenリポジトリ
+    maven {
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+    }
+    // 【追加】Kotlin for Forge (VS2/Eurekaの必須依存)
+    maven {
+        name = "Kotlin for Forge"
+        url = "https://thedarkcolour.github.io/KotlinForForge/"
+    }
+    // 【追加】Modrinth Maven (Valkyrien Skies 2 / Eureka)
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content { includeGroup "maven.modrinth" }
+    }
+    // 【追加】ModMaven (Mekanism)
+    maven {
+        name = "ModMaven"
+        url = "https://modmaven.dev/"
+    }
+}
+
+dependencies {
+    // Specify the version of Minecraft to use. If this is any group other than 'net.minecraft', it is assumed
+    // that the dep is a ForgeGradle 'patcher' dependency, and its patches will be applied.
+    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
+    // 【変更】VS2がForge 40.2.4以上を要求するため 40.2.0 から更新
+    minecraft 'net.minecraftforge:forge:1.18.2-40.2.4'
+
+    // Real mod deobf dependency examples - these get remapped to your current mappings
+    // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
+    // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency
+    // implementation fg.deobf("com.tterrag.registrate:Registrate:MC${mc_version}-${registrate_version}") // Adds registrate as a dependency
+
+    // Examples using mod jars from ./libs
+    // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
+
+    // For more info...
+    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+    // 【追加】JEI (Just Enough Items)
+    // コンパイル時のみAPIを使用 (コードを書くため)
+    compileOnly fg.deobf("mezz.jei:jei-1.18.2-common-api:10.2.1.1005")
+    compileOnly fg.deobf("mezz.jei:jei-1.18.2-forge-api:10.2.1.1005")
+
+    // 実行時に完全なModを使用 (テストプレイでJEIを表示するため)
+    runtimeOnly fg.deobf("mezz.jei:jei-1.18.2-forge:10.2.1.1005")
+
+    // 【追加】Kotlin for Forge (VS2とEurekaの必須依存)
+    implementation 'thedarkcolour:kotlinforforge:3.12.0'
+
+    // 【追加】Valkyrien Skies 2 本体 (Modrinth配布版)
+    // vs-core・Cloth Config等を同梱したfat jarなので、これ1つで完結する。
+    // VS公式Mavenのdevビルドは配布版EurekaとAPIシグネチャが合わずクラッシュするため使わないこと。
+    implementation fg.deobf("maven.modrinth:valkyrien-skies:1.18.2-forge-2.1.1-beta.5")
+
+    // 【追加】Eureka (船の操縦Mod)
+    runtimeOnly fg.deobf("maven.modrinth:eureka:1.18.2-forge-1.5.4-beta.1")
+
+    // 【追加】Mekanism + Mekanism Generators
+    compileOnly fg.deobf("mekanism:Mekanism:1.18.2-10.2.5.465:api")
+    runtimeOnly fg.deobf("mekanism:Mekanism:1.18.2-10.2.5.465")
+    runtimeOnly fg.deobf("mekanism:Mekanism:1.18.2-10.2.5.465:generators")
+}
+
+// 【追加】Apple Silicon (arm64) Mac対応
+// MC 1.18.2標準のLWJGLネイティブはx86_64のみで、arm64のJVMではrunClientが
+// UnsatisfiedLinkError (incompatible architecture) でクラッシュする。
+// arm64ネイティブを含むLWJGL 3.3.1に差し替えて対処する (Prism Launcher等と同じ手法)。
+if (System.getProperty('os.name').toLowerCase().contains('mac') && System.getProperty('os.arch') == 'aarch64') {
+    ext.lwjglVersion = '3.3.1'
+    // LWJGL本体をarm64ネイティブが存在する3.3.1に強制する (MC-BOOTSTRAP側のクラスパスにも反映される)
+    configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'org.lwjgl') {
+                details.useVersion lwjglVersion
+            }
+            // macOS連携ライブラリ (libjcocoa.dylib) も1.0.0はx86_64のみ。arm64同梱の1.1に上げる
+            if (details.requested.group == 'ca.weblite' && details.requested.name == 'java-objc-bridge') {
+                details.useVersion '1.1'
+            }
+        }
+    }
+    // arm64ネイティブjarを通常の依存に足してもModLauncherのモジュール層からは見えない。
+    // そのため .dylib をビルド時にディレクトリへ展開し、org.lwjgl.librarypath で直接指定する。
+    configurations { lwjglNativesArm64 }
+    dependencies {
+        ['lwjgl', 'lwjgl-glfw', 'lwjgl-jemalloc', 'lwjgl-openal', 'lwjgl-opengl', 'lwjgl-stb', 'lwjgl-tinyfd'].each { module ->
+            lwjglNativesArm64 "org.lwjgl:${module}:${lwjglVersion}:natives-macos-arm64"
+        }
+    }
+    def extractLwjglNativesArm64 = tasks.register('extractLwjglNativesArm64', Copy) {
+        from({ configurations.lwjglNativesArm64.collect { zipTree(it) } }) {
+            include '**/*.dylib'
+        }
+        includeEmptyDirs = false
+        eachFile { it.relativePath = new org.gradle.api.file.RelativePath(true, it.name) }
+        into file("${buildDir}/lwjglNativesArm64")
+    }
+    tasks.configureEach { t ->
+        if (t.name.startsWith('prepareRun') || t.name.startsWith('run')) {
+            t.dependsOn extractLwjglNativesArm64
+        }
+    }
+    minecraft.runs.configureEach {
+        property 'org.lwjgl.librarypath', "${buildDir}/lwjglNativesArm64"
+    }
+}
+
+// Example for how to get properties into the manifest for reading at runtime.
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : "wave_motion_gun_mod",
+                "Specification-Vendor"    : "wave_motion_gun_modsareus",
+                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.jar.archiveVersion,
+                "Implementation-Vendor"   : "wave_motion_gun_modsareus",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+// Example configuration to allow publishing using the maven-publish plugin
+// This is the preferred method to reobfuscate your jar file
+jar.finalizedBy('reobfJar')
+// However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
+// publish.dependsOn('reobfJar')
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url "file://${project.projectDir}/mcmodsrepo"
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+    options.compilerArgs << "-Xlint:deprecation"
+}

@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "item": "wave_motion_gun_mod:tachyon_crystal"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.tachyon_crystal.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.tachyon_crystal.description"
+    },
+    "frame": "task"
+  },
+  "parent": "wave_motion_gun_mod:story/cosmo_steel",
+  "criteria": {
+    "has_tachyon_crystal": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "wave_motion_gun_mod:tachyon_crystal"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

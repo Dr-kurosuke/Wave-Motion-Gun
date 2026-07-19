@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"WWW",
+		"S S",
+		"SSS"
+	],
+	"key": {
+		"W": { "item": "minecraft:white_wool" },
+		"S": { "item": "wave_motion_gun_mod:cosmo_steel" }
+	},
+	"result": {
+		"item": "wave_motion_gun_mod:seat_block",
+		"count": 1
+	}
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "TGT",
+    "TGT",
+    "SQS"
+  ],
+  "key": {
+    "S": { "item": "wave_motion_gun_mod:cosmo_steel" },
+    "T": { "item": "wave_motion_gun_mod:tachyon_crystal" },
+    "G": { "item": "wave_motion_gun_mod:gravity_lens" },
+    "Q": { "item": "wave_motion_gun_mod:quantum_unit" }
+  },
+  "result": {
+    "item": "wave_motion_gun_mod:tachyon_particle_compressor",
+    "count": 1
+  }
+}

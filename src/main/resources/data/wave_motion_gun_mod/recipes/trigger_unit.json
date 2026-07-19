@@ -1,0 +1,20 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"GLG",
+		"IQI",
+		"CSC"
+	],
+	"key": {
+		"G": { "item": "minecraft:glass_pane" },
+		"S": { "item": "wave_motion_gun_mod:cosmo_steel" },
+		"L": { "item": "wave_motion_gun_mod:gravity_lens" },
+		"Q": { "item": "wave_motion_gun_mod:quantum_unit" },
+		"C": { "item": "minecraft:comparator" },
+		"I": { "item": "minecraft:iron_ingot" }
+	},
+	"result": {
+		"item": "wave_motion_gun_mod:trigger_unit",
+		"count": 1
+	}
+}

@@ -1,0 +1,34 @@
+{
+  "display": {
+    "icon": {
+      "item": "wave_motion_gun_mod:cosmo_steel"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.cosmo_steel.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.cosmo_steel.description"
+    },
+    "frame": "task"
+  },
+  "parent": "wave_motion_gun_mod:story/first_supply",
+  "criteria": {
+    "has_cosmo_steel": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "wave_motion_gun_mod:cosmo_steel"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "wave_motion_gun_mod:wave_manual"
+    ]
+  }
+}

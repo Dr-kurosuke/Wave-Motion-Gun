@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "item": "wave_motion_gun_mod:communication_beacon"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.craft_beacon.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.craft_beacon.description"
+    },
+    "frame": "task"
+  },
+  "parent": "wave_motion_gun_mod:story/root",
+  "criteria": {
+    "has_beacon": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "wave_motion_gun_mod:communication_beacon"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

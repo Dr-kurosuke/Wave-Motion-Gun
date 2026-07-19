@@ -1,0 +1,20 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:redstone_torch"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.overcharge.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.overcharge.description"
+    },
+    "frame": "challenge"
+  },
+  "parent": "wave_motion_gun_mod:story/full_charge",
+  "criteria": {
+    "code_granted": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

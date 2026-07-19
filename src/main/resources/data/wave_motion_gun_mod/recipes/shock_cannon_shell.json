@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " S ",
+    "TLT",
+    "SQS"
+  ],
+  "key": {
+    "S": { "item": "wave_motion_gun_mod:cosmo_steel" },
+    "T": { "item": "wave_motion_gun_mod:tachyon_crystal" },
+    "Q": { "item": "wave_motion_gun_mod:quantum_unit" },
+    "L": { "item": "wave_motion_gun_mod:gravity_lens" }
+  },
+  "result": {
+    "item": "wave_motion_gun_mod:shock_cannon_shell",
+    "count": 16
+  }
+}
