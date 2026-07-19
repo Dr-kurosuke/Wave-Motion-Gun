@@ -13,6 +13,8 @@ displayURL="https://github.com/Dr-kurosuke/Wave-Motion-Gun"
 description='''
 宇宙戦艦をテーマにした波動砲・ショックカノンMod。マルチブロックの主砲を建造し、エネルギーを充填して発射します。Valkyrien Skies / Eureka! の船に搭載可能。
 
+※【必須】本Mod単体では発電できません。Mekanism / Thermal / Immersive Engineering など、FE(Forge Energy)を供給できる工業Modを別途導入してください。無いと主砲を充填できず発射できません。
+
 ※本Modは非営利のファン制作物であり、原作およびその権利者とは一切関係ありません。公式のロゴ・画像・音楽は使用していません。
 ※AIクイズ機能は外部API(Gemini / OpenAI互換)へ通信し、利用にはユーザー自身のAPIキーが必要です。
 ※船上での主砲運用は、1.20.1版でValkyrien Skiesの座標対応を強化しています。1.18.2でも実機テストでは不具合は確認されておらず、そのまま問題なく遊べます。
@@ -48,7 +50,14 @@ versionRange="*"
 ordering="AFTER"
 side="BOTH"
 
-# エネルギー供給に推奨(FEを生む工業Modの一例)
+# --- エネルギー源について ---
+# 本Modは発電手段を持たず、FE(Forge Energy)の供給Modが実質「必須」。
+# ただし特定のModに依存しているわけではなく、FEを出力できるModなら何でもよい
+# (Mekanism / Thermal / Immersive Engineering など)。
+# mods.toml は「いずれかのModがあればよい」というOR条件を表現できないため、
+# ここで mekanism を mandatory=true にすると Mekanism 以外のFE Modを使う
+# プレイヤーが起動できなくなってしまう。よって代表例として mandatory=false で
+# 宣言するに留め、必須である旨は description と README に明記する。
 [[dependencies.wave_motion_gun_mod]]
 modId="mekanism"
 mandatory=false

@@ -22,15 +22,20 @@
 
 | Minecraft | ローダー | ブランチ |
 |---|---|---|
-| 1.20.1 | Forge 47.x | `main` |
+| 1.20.1 | Forge 47.x | **`main`**(開発本線) / `1.20.1`(ミラー) |
 | 1.18.2 | Forge 40.x | `1.18.2`(このブランチ) |
+
+1.20.1版の開発本線は `main` です(`1.20.1` ブランチは同内容のミラー)。主開発は1.20.1版で行っています。
+
+## 必須の併用Mod
+
+- **FE(Forge Energy)を供給できる工業Mod** … **必須です。**
+  本Mod自体は発電手段を持たず、波動エネルギー貯蔵ユニットが外部からFEを受け取る作りになっています。FE を供給できるModが無いと主砲を充填できず、**発射まで到達できません。**
+  [Mekanism](https://modrinth.com/mod/mekanism) / [Thermal Expansion](https://modrinth.com/mod/thermal-expansion) / [Immersive Engineering](https://modrinth.com/mod/immersive-engineering) など、FEを出力できるModであれば何でも構いません(特定のModに依存していません)。
 
 ## 推奨併用Mod(任意)
 
-いずれも**必須ではありません**。
-
-- **Valkyrien Skies 2** + **Eureka!** … 船に主砲を載せる遊び
-- **Mekanism** など FE(Forge Energy)を供給できる工業Mod … 主砲のエネルギー源
+- **Valkyrien Skies 2** + **Eureka!** … 船に主砲を載せる遊び。未導入でも単体で動作します
 
 ## AIクイズ機能について
 
