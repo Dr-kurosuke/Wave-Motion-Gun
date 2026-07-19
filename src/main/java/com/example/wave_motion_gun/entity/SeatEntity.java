@@ -16,20 +16,6 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class SeatEntity extends Entity {
 
-    /**
-     * 対応するシートブロックの座標。
-     *
-     * VS2の船上ではブロックはシップヤード座標にあり、エンティティはワールド座標に置く必要がある。
-     * つまり座席エンティティの位置とブロックの座標は一致しなくなるため、
-     * 「どのブロックの座席か」を blockPosition() から復元できない。そこで明示的に保持する。
-     * ブロック参照(getBlockState)には必ずこちらを使うこと。
-     *
-     * クライアント側でも向き固定に使うため SynchedEntityData で同期する。
-     */
-    private static final net.minecraft.network.syncher.EntityDataAccessor<BlockPos> SEAT_BLOCK_POS =
-            net.minecraft.network.syncher.SynchedEntityData.defineId(
-                    SeatEntity.class, net.minecraft.network.syncher.EntityDataSerializers.BLOCK_POS);
-
     // 登録用コンストラクタ (EntityInitで使用)
     public SeatEntity(EntityType<?> type, Level level) {
         super(type, level);
@@ -39,30 +25,8 @@ public class SeatEntity extends Entity {
     // 実際にスポーンさせる時のコンストラクタ
     public SeatEntity(Level level, BlockPos pos) {
         this(EntityInit.SEAT.get(), level);
-        this.entityData.set(SEAT_BLOCK_POS, pos.immutable());
-        this.moveToSeatBlock();
-    }
-
-    /** 参照すべきシートブロックの座標(シップヤード座標系)。 */
-    public BlockPos getSeatBlockPos() {
-        BlockPos stored = this.entityData.get(SEAT_BLOCK_POS);
-        // 旧セーブ由来などで未設定の場合は、船に載っていない前提で自身の座標にフォールバック
-        return BlockPos.ZERO.equals(stored) ? this.blockPosition() : stored;
-    }
-
-    /**
-     * シートブロックの現在のワールド座標へ自分を移動する。
-     *
-     * 船は動くので毎tick追従させる必要がある。これをしないと、船が進んでも
-     * 座席(と乗っているプレイヤー)がその場に取り残される。
-     */
-    private void moveToSeatBlock() {
-        BlockPos pos = this.getSeatBlockPos();
-        // 0.001はずり落ち防止。ブロック下端を基準にするため中心から-0.499する。
-        // オフセットは変換前に足す(船が傾いていても座面が正しい向きに来るように)。
-        net.minecraft.world.phys.Vec3 p = com.example.wave_motion_gun.compat.VSCompat.toWorldPos(
-                this.level(), net.minecraft.world.phys.Vec3.atCenterOf(pos).add(0, -0.499, 0));
-        this.setPos(p.x, p.y, p.z);
+        // 位置調整 (0.001はずり落ち防止)
+        this.setPos(pos.getX() + 0.5, pos.getY() + 0.001, pos.getZ() + 0.5);
     }
 
     @Override
@@ -70,8 +34,7 @@ public class SeatEntity extends Entity {
         if (this.level().isClientSide) return;
 
         // シートブロックがなくなったり、別のブロックになったら消滅
-        // (ブロック参照はシップヤード座標のまま行うのが正しい)
-        BlockState state = this.level().getBlockState(this.getSeatBlockPos());
+        BlockState state = this.level().getBlockState(this.blockPosition());
         if (!(state.getBlock() instanceof SeatBlock)) {
             this.discard();
             return;
@@ -80,11 +43,7 @@ public class SeatEntity extends Entity {
         // 誰も乗っていなければ消滅
         if (this.getPassengers().isEmpty()) {
             this.discard();
-            return;
         }
-
-        // 船が動いた場合に追従する
-        this.moveToSeatBlock();
     }
 
     @Override
@@ -92,18 +51,38 @@ public class SeatEntity extends Entity {
         return 0.20D; // 座る高さの調整
     }
 
+    /**
+     * ブロックの向き(facing)を、船の回転を考慮したワールド座標系のyawに変換する。
+     *
+     * facing はシップヤード座標系の向きなので、facing.toYRot() をそのまま使うと
+     * 「ワールドの絶対方位」になり、船が回頭している分だけ着席時の向きがずれる。
+     * 方向ベクトルに直して VSCompat.toWorldDirection を通してから yaw に戻す。
+     *
+     * 船に載っていない(またはVS2未導入の)場合、toWorldDirection は入力をそのまま返すため
+     * 結果は facing.toYRot() と数値的に一致する(SOUTH=0/WEST=90/NORTH=180/EAST=270)。
+     */
+    private float worldYawOf(Direction facing, BlockPos pos) {
+        net.minecraft.world.phys.Vec3 dir =
+                new net.minecraft.world.phys.Vec3(facing.getStepX(), 0, facing.getStepZ());
+        net.minecraft.world.phys.Vec3 worldDir = com.example.wave_motion_gun.compat.VSCompat
+                .toWorldDirection(this.level(), dir, net.minecraft.world.phys.Vec3.atCenterOf(pos));
+        // 水平成分が消える(船が真上を向く等)場合は従来の値にフォールバック
+        if (worldDir.x * worldDir.x + worldDir.z * worldDir.z < 1.0e-6) return facing.toYRot();
+        // yaw の定義: 視線ベクトル = (-sin(yaw), *, cos(yaw))
+        return (float) Math.toDegrees(net.minecraft.util.Mth.atan2(-worldDir.x, worldDir.z));
+    }
+
     // プレイヤーが乗った瞬間に向きと視点を固定する処理
     @Override
     protected void addPassenger(Entity passenger) {
         super.addPassenger(passenger);
 
-        // ブロック参照はシップヤード座標のまま行う (自身の座標はワールド座標なので使えない)
-        BlockPos pos = this.getSeatBlockPos();
+        BlockPos pos = this.blockPosition();
         BlockState state = this.level().getBlockState(pos);
 
         if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
             Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
-            float yaw = facing.toYRot();
+            float yaw = worldYawOf(facing, pos);
 
             // シートの向きを設定
             this.setYRot(yaw);
@@ -128,25 +107,8 @@ public class SeatEntity extends Entity {
         }
     }
 
-    @Override
-    protected void defineSynchedData() {
-        this.entityData.define(SEAT_BLOCK_POS, BlockPos.ZERO);
-    }
-
-    @Override
-    protected void readAdditionalSaveData(CompoundTag compound) {
-        if (compound.contains("SeatBlockX")) {
-            this.entityData.set(SEAT_BLOCK_POS, new BlockPos(
-                    compound.getInt("SeatBlockX"), compound.getInt("SeatBlockY"), compound.getInt("SeatBlockZ")));
-        }
-    }
-
-    @Override
-    protected void addAdditionalSaveData(CompoundTag compound) {
-        BlockPos pos = this.entityData.get(SEAT_BLOCK_POS);
-        compound.putInt("SeatBlockX", pos.getX());
-        compound.putInt("SeatBlockY", pos.getY());
-        compound.putInt("SeatBlockZ", pos.getZ());
-    }
+    @Override protected void defineSynchedData() {}
+    @Override protected void readAdditionalSaveData(CompoundTag compound) {}
+    @Override protected void addAdditionalSaveData(CompoundTag compound) {}
     @Override public Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getAddEntityPacket() { return new ClientboundAddEntityPacket(this); }
 }
