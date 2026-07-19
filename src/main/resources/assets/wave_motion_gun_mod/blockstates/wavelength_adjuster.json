@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=north": { "model": "wave_motion_gun_mod:block/wavelength_adjuster" },
+    "facing=south": { "model": "wave_motion_gun_mod:block/wavelength_adjuster", "y": 180 },
+    "facing=east":  { "model": "wave_motion_gun_mod:block/wavelength_adjuster", "y": 90 },
+    "facing=west":  { "model": "wave_motion_gun_mod:block/wavelength_adjuster", "y": 270 },
+    "facing=up":    { "model": "wave_motion_gun_mod:block/wavelength_adjuster", "x": 270 },
+    "facing=down":  { "model": "wave_motion_gun_mod:block/wavelength_adjuster", "x": 90 }
+  }
+}

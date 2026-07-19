@@ -1,0 +1,37 @@
+{
+  "display": {
+    "icon": {
+      "item": "wave_motion_gun_mod:coordinate_datapad"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.first_supply.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.first_supply.description"
+    },
+    "frame": "task"
+  },
+  "parent": "wave_motion_gun_mod:story/first_quiz",
+  "criteria": {
+    "has_datapad": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "wave_motion_gun_mod:coordinate_datapad"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "wave_motion_gun_mod:cosmo_blend",
+      "wave_motion_gun_mod:cosmo_steel_smelting",
+      "wave_motion_gun_mod:cosmo_steel_blasting",
+      "wave_motion_gun_mod:shock_manual"
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "item": "wave_motion_gun_mod:wave_cannon"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.craft_wave_cannon.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.craft_wave_cannon.description"
+    },
+    "frame": "task"
+  },
+  "parent": "wave_motion_gun_mod:story/clearance_s",
+  "criteria": {
+    "has_wave_cannon": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "wave_motion_gun_mod:wave_cannon"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

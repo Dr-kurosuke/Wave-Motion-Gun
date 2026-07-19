@@ -1,0 +1,38 @@
+{
+  "display": {
+    "icon": {
+      "item": "wave_motion_gun_mod:clearance_a"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.clearance_a.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.clearance_a.description"
+    },
+    "frame": "task"
+  },
+  "parent": "wave_motion_gun_mod:story/clearance_b",
+  "criteria": {
+    "has_clearance_a": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "wave_motion_gun_mod:clearance_a"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "wave_motion_gun_mod:wavelength_adjuster",
+      "wave_motion_gun_mod:tachyon_particle_compressor",
+      "wave_motion_gun_mod:wave_chamber",
+      "wave_motion_gun_mod:type_3_shell",
+      "wave_motion_gun_mod:wave_cartridge"
+    ]
+  }
+}

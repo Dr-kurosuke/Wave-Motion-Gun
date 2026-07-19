@@ -1,0 +1,21 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:campfire"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.overheat.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.overheat.description"
+    },
+    "frame": "task",
+    "hidden": true
+  },
+  "parent": "wave_motion_gun_mod:story/full_charge",
+  "criteria": {
+    "code_granted": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

@@ -1,0 +1,57 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+issueTrackerURL="https://github.com/ksk-kuro/Wave-Motion-Gun/issues"
+
+[[mods]]
+modId="wave_motion_gun_mod"
+version="1.0.0"
+displayName="Wave Motion Gun Mod"
+authors="kskkuro"
+credits="宇宙戦艦をテーマにした非公式ファンMod。原作および権利者とは無関係です。"
+displayURL="https://github.com/ksk-kuro/Wave-Motion-Gun"
+description='''
+宇宙戦艦をテーマにした波動砲・ショックカノンMod。マルチブロックの主砲を建造し、エネルギーを充填して発射します。Valkyrien Skies / Eureka! の船に搭載可能。
+
+※本Modは非営利のファン制作物であり、原作およびその権利者とは一切関係ありません。公式のロゴ・画像・音楽は使用していません。
+※AIクイズ機能は外部API(Gemini / OpenAI互換)へ通信し、利用にはユーザー自身のAPIキーが必要です。
+'''
+
+# --- 必須依存 ---
+[[dependencies.wave_motion_gun_mod]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.wave_motion_gun_mod]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
+# --- 任意依存(強く推奨。無くても単体で動作する) ---
+# 船に主砲を載せる遊び方の前提。VSCompatにより未導入環境でも安全に動作する
+[[dependencies.wave_motion_gun_mod]]
+modId="valkyrienskies"
+mandatory=false
+versionRange="*"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.wave_motion_gun_mod]]
+modId="vs_eureka"
+mandatory=false
+versionRange="*"
+ordering="AFTER"
+side="BOTH"
+
+# エネルギー供給に推奨(FEを生む工業Modの一例)
+[[dependencies.wave_motion_gun_mod]]
+modId="mekanism"
+mandatory=false
+versionRange="*"
+ordering="AFTER"
+side="BOTH"

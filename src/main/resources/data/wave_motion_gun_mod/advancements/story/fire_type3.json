@@ -1,0 +1,20 @@
+{
+  "display": {
+    "icon": {
+      "item": "wave_motion_gun_mod:type_3_shell"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.fire_type3.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.fire_type3.description"
+    },
+    "frame": "task"
+  },
+  "parent": "wave_motion_gun_mod:story/fire_shock_cannon",
+  "criteria": {
+    "code_granted": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " S ",
+    "STS",
+    "SPS"
+  ],
+  "key": {
+    "S": { "item": "wave_motion_gun_mod:cosmo_steel" },
+    "T": { "item": "wave_motion_gun_mod:tachyon_crystal" },
+    "P": { "item": "minecraft:gunpowder" }
+  },
+  "result": {
+    "item": "wave_motion_gun_mod:type_3_shell",
+    "count": 16
+  }
+}

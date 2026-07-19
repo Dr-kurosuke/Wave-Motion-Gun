@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=north": { "model": "wave_motion_gun_mod:block/shock_cannon_barrel" },
+    "facing=south": { "model": "wave_motion_gun_mod:block/shock_cannon_barrel", "y": 180 },
+    "facing=east":  { "model": "wave_motion_gun_mod:block/shock_cannon_barrel", "y": 90 },
+    "facing=west":  { "model": "wave_motion_gun_mod:block/shock_cannon_barrel", "y": 270 },
+    "facing=up":    { "model": "wave_motion_gun_mod:block/shock_cannon_barrel", "x": 270 },
+    "facing=down":  { "model": "wave_motion_gun_mod:block/shock_cannon_barrel", "x": 90 }
+  }
+}

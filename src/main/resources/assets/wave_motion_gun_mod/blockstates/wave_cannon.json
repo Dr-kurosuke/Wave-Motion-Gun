@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=north": { "model": "wave_motion_gun_mod:block/wave_cannon" },
+    "facing=south": { "model": "wave_motion_gun_mod:block/wave_cannon", "y": 180 },
+    "facing=east":  { "model": "wave_motion_gun_mod:block/wave_cannon", "y": 90 },
+    "facing=west":  { "model": "wave_motion_gun_mod:block/wave_cannon", "y": 270 },
+    "facing=up":    { "model": "wave_motion_gun_mod:block/wave_cannon", "x": 270 },
+    "facing=down":  { "model": "wave_motion_gun_mod:block/wave_cannon", "x": 90 }
+  }
+}

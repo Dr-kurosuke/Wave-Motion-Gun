@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"OSO",
+		"O O",
+		"SOS"
+	],
+	"key": {
+		"S": { "item": "wave_motion_gun_mod:cosmo_steel" },
+		"O": { "item": "minecraft:obsidian" }
+	},
+	"result": {
+		"item": "wave_motion_gun_mod:barrel_unit",
+		"count": 1
+	}
+}

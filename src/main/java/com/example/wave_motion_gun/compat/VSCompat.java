@@ -1,0 +1,108 @@
+package com.example.wave_motion_gun.compat;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fml.ModList;
+
+/**
+ * Valkyrien Skies 2 (VS2) 互換レイヤー。
+ *
+ * VS2の船に載ったブロックは、見た目の位置とは別の「シップヤード」座標(超遠方)に
+ * 実体が置かれる。そのためブロック座標を素のまま使うと、
+ *  - 距離検証: 船上のGUI操作パケットが「遠隔操作」として誤って拒否される
+ *  - エンティティ生成: ビーム等が見た目の砲口ではなくシップヤードに出現する
+ *  - 付近プレイヤー検索/効果音: プレイヤーはワールド座標にいるため届かない
+ * といった問題が起きる。VS2導入時はVS2公式APIへ委譲して船の変換行列を考慮し、
+ * 未導入時は素の座標をそのまま使うフォールバックとする。
+ */
+public final class VSCompat {
+    private static final boolean VS2_LOADED = ModList.get().isLoaded("valkyrienskies");
+
+    private VSCompat() {
+    }
+
+    /**
+     * プレイヤーが指定ブロックの操作可能範囲内にいるかを、VS2の船を考慮して判定する。
+     * パケットハンドラのサーバー権威検証(改造クライアント対策)用。
+     */
+    public static boolean isWithinReach(Player player, BlockPos pos, double maxDistance) {
+        Vec3 target = Vec3.atCenterOf(pos);
+        double distSqr = VS2_LOADED
+                ? VS2Handler.squaredDistanceInclShips(player, target)
+                : player.distanceToSqr(target);
+        return distSqr <= maxDistance * maxDistance;
+    }
+
+    /**
+     * シップヤード座標をワールド座標へ変換する。船上でなければそのまま返す。
+     * エンティティ生成位置・効果音位置・付近プレイヤー検索の基準点に使う。
+     */
+    public static Vec3 toWorldPos(Level level, Vec3 pos) {
+        return VS2_LOADED ? VS2Handler.toWorld(level, pos) : pos;
+    }
+
+    /** ブロック中心のワールド座標版ショートカット。 */
+    public static Vec3 worldCenterOf(Level level, BlockPos pos) {
+        return toWorldPos(level, Vec3.atCenterOf(pos));
+    }
+
+    /**
+     * シップヤード座標系の方向ベクトルを、船の回転を考慮したワールド座標系の方向へ変換する。
+     * 基点refPosと先端(refPos+dir)の2点をそれぞれ変換して差分を取るため、
+     * 船が傾いていても正しい向きになる。船上でなければdirをそのまま返す。
+     */
+    public static Vec3 toWorldDirection(Level level, Vec3 dir, Vec3 refPos) {
+        if (!VS2_LOADED) return dir;
+        Vec3 base = VS2Handler.toWorld(level, refPos);
+        Vec3 tip = VS2Handler.toWorld(level, refPos.add(dir));
+        Vec3 d = tip.subtract(base);
+        // 変換の丸め誤差で長さが変わらないよう、元の長さに正規化する
+        return d.lengthSqr() < 1.0e-8 ? dir : d.normalize().scale(dir.length());
+    }
+
+    /**
+     * VS2クラスへの参照はこの内部クラスに隔離する。
+     * 外側クラスからはVS2_LOADED確認後にのみ触ること
+     * (VS2未導入環境でVS2クラスの解決が走りNoClassDefFoundErrorになる事故を防ぐ)。
+     */
+    private static final class VS2Handler {
+        /**
+         * toWorldCoordinatesにはShip型を引数に取るオーバーロードがあり、Shipは
+         * VS2 jar内部のネストjar(jarjar)にしか無いため直接呼ぶとコンパイルできない。
+         * シグネチャを(Level, Vec3)に固定できるMethodHandle経由で呼び出す。
+         */
+        private static final java.lang.invoke.MethodHandle TO_WORLD = lookupToWorld();
+
+        private static java.lang.invoke.MethodHandle lookupToWorld() {
+            try {
+                return java.lang.invoke.MethodHandles.publicLookup().findStatic(
+                        org.valkyrienskies.mod.common.VSGameUtilsKt.class,
+                        "toWorldCoordinates",
+                        java.lang.invoke.MethodType.methodType(Vec3.class, Level.class, Vec3.class));
+            } catch (ReflectiveOperationException e) {
+                // VS2側のAPI変更時は座標変換なしで動作継続する(距離検証は別APIなので影響しない)
+                com.mojang.logging.LogUtils.getLogger()
+                        .warn("[wave_motion_gun] VS2 toWorldCoordinates not found; ship coordinate transform disabled", e);
+                return null;
+            }
+        }
+
+        static double squaredDistanceInclShips(Player player, Vec3 target) {
+            return org.valkyrienskies.mod.common.VSGameUtilsKt.squaredDistanceBetweenInclShips(
+                    player.level(),
+                    player.getX(), player.getY(), player.getZ(),
+                    target.x, target.y, target.z);
+        }
+
+        static Vec3 toWorld(Level level, Vec3 pos) {
+            if (TO_WORLD == null) return pos;
+            try {
+                return (Vec3) TO_WORLD.invokeExact(level, pos);
+            } catch (Throwable t) {
+                throw new RuntimeException("VS2 toWorldCoordinates call failed", t);
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+  "parent": "wave_motion_gun_mod:story/cosmo_steel",
+  "display": {
+    "icon": {
+      "item": "wave_motion_gun_mod:wave_manual"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.get_manual.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.get_manual.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "has_manual": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "wave_motion_gun_mod:wave_manual"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_manual"
+    ]
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "display": {
+    "icon": {
+      "item": "wave_motion_gun_mod:wave_energy_storage"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.full_charge.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.full_charge.description"
+    },
+    "frame": "task"
+  },
+  "parent": "wave_motion_gun_mod:story/structure_complete",
+  "criteria": {
+    "code_granted": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "display": {
+    "icon": {
+      "item": "wave_motion_gun_mod:monitoring_unit"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.structure_complete.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.structure_complete.description"
+    },
+    "frame": "task"
+  },
+  "parent": "wave_motion_gun_mod:story/craft_wave_cannon",
+  "criteria": {
+    "code_granted": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

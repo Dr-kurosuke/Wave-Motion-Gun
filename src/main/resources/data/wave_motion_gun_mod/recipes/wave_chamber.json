@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SQS",
+    "TTT",
+    "PGP"
+  ],
+  "key": {
+    "S": { "item": "wave_motion_gun_mod:cosmo_steel" },
+    "T": { "item": "wave_motion_gun_mod:tachyon_crystal" },
+    "G": { "item": "wave_motion_gun_mod:gravity_lens" },
+    "Q": { "item": "wave_motion_gun_mod:quantum_unit" },
+    "P": { "item": "minecraft:gunpowder" }
+  },
+  "result": {
+    "item": "wave_motion_gun_mod:wave_chamber",
+    "count": 1
+  }
+}

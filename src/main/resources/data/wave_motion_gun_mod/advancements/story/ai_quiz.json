@@ -1,0 +1,21 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.ai_quiz.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.ai_quiz.description"
+    },
+    "frame": "task",
+    "hidden": true
+  },
+  "parent": "wave_motion_gun_mod:story/first_quiz",
+  "criteria": {
+    "code_granted": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "display": {
+    "icon": {
+      "item": "wave_motion_gun_mod:wave_cannon"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.fire_wave_cannon.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.fire_wave_cannon.description"
+    },
+    "frame": "goal"
+  },
+  "parent": "wave_motion_gun_mod:story/structure_complete",
+  "criteria": {
+    "code_granted": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

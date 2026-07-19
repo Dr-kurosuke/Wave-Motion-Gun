@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " S ",
+    "S S",
+    " S "
+  ],
+  "key": {
+    "S": { "item": "wave_motion_gun_mod:cosmo_steel" }
+  },
+  "result": {
+    "item": "wave_motion_gun_mod:shock_cannon_barrel",
+    "count": 1
+  }
+}

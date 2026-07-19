@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=north": { "model": "wave_motion_gun_mod:block/wave_energy_storage", "y": 180 },
+    "facing=south": { "model": "wave_motion_gun_mod:block/wave_energy_storage" },
+    "facing=east":  { "model": "wave_motion_gun_mod:block/wave_energy_storage", "y": 270 },
+    "facing=west":  { "model": "wave_motion_gun_mod:block/wave_energy_storage", "y": 90 },
+    "facing=up":    { "model": "wave_motion_gun_mod:block/wave_energy_storage", "x": 270, "y": 180 },
+    "facing=down":  { "model": "wave_motion_gun_mod:block/wave_energy_storage", "x": 90, "y": 180 }
+  }
+}

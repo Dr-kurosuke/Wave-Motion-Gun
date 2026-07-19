@@ -1,0 +1,37 @@
+{
+  "display": {
+    "icon": {
+      "item": "wave_motion_gun_mod:clearance_b"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.clearance_b.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.clearance_b.description"
+    },
+    "frame": "task"
+  },
+  "parent": "wave_motion_gun_mod:story/clearance_c",
+  "criteria": {
+    "has_clearance_b": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "wave_motion_gun_mod:clearance_b"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "wave_motion_gun_mod:barrel_unit",
+      "wave_motion_gun_mod:wave_energy_storage",
+      "wave_motion_gun_mod:monitoring_unit",
+      "wave_motion_gun_mod:trigger_unit"
+    ]
+  }
+}

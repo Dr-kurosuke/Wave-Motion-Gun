@@ -1,0 +1,49 @@
+{
+  "display": {
+    "icon": {
+      "item": "wave_motion_gun_mod:wave_core"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.wave_core.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.wave_core.description"
+    },
+    "frame": "task"
+  },
+  "parent": "wave_motion_gun_mod:story/gravity_lens",
+  "criteria": {
+    "has_quantum_unit": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "wave_motion_gun_mod:quantum_unit"
+            ]
+          }
+        ]
+      }
+    },
+    "has_wave_core": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "wave_motion_gun_mod:wave_core"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_quantum_unit"
+    ],
+    [
+      "has_wave_core"
+    ]
+  ]
+}

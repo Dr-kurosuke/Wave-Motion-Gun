@@ -1,0 +1,98 @@
+{
+  "wave_charging": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_charging",
+    "sounds": [ "wave_motion_gun_mod:wave_charging" ]
+  },
+  "wave_charging_stable": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_charging_stable",
+    "sounds": [ "wave_motion_gun_mod:wave_charging_stable" ]
+  },
+  "wave_finished": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_finished",
+    "sounds": [ "wave_motion_gun_mod:wave_finished" ]
+  },
+  "wave_motion_gun_charge": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_charge",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_charge_mono" ]
+  },
+  "wave_motion_gun_fire": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_fire",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_fire" ]
+  },
+  "wave_motion_gun_trajectory": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_trajectory",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_trajectory" ]
+  },
+  "wave_motion_gun_lightning": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_lightning",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_lightning" ]
+  },
+  "wave_motion_gun_holo_off": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_holo_off",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_holo_off" ]
+  },
+  "wave_motion_gun_holo_on": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_holo_on",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_holo_on" ]
+  },
+  "wave_motion_gun_lever": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_lever",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_lever" ]
+  },
+  "wave_motion_gun_switch": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_switch",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_switch" ]
+  },
+  "wave_motion_gun_trigger": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_trigger",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_trigger" ]
+  },
+  "wave_motion_gun_grip": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_grip",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_grip" ]
+  },
+  "wave_motion_gun_forced_injector": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_forced_injector",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_forced_injector" ]
+  },
+  "wave_motion_gun_forced_injector_off": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_forced_injector_off",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_forced_injector_off" ]
+  },
+  "wave_motion_gun_safety": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_safety",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_safety" ]
+  },
+  "wave_motion_gun_valve_close": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_valve_close",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_valve_close_multi" ]
+  },
+  "wave_motion_gun_valve_open": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_valve_open",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_valve_open" ]
+  },
+  "wave_motion_gun_charging": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_charging",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_charging_mono" ]
+  },
+  "wave_motion_gun_exhausting": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_exhausting",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_exhausting_mono" ]
+  },
+  "wave_motion_gun_critical": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_critical",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_critical" ]
+  },
+  "wave_motion_gun_shock_cannon": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_shock_cannon",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_shock_cannon" ]
+  },
+  "wave_motion_gun_shock_cannon_trajectory": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_shock_cannon_trajectory",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_shock_cannon_trajectory" ]
+  },
+  "wave_motion_gun_shell": {
+    "subtitle": "subtitles.wave_motion_gun_mod.wave_motion_gun_shell",
+    "sounds": [ "wave_motion_gun_mod:wave_motion_gun_shell" ]
+  }
+}

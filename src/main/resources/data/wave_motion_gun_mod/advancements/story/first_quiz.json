@@ -1,0 +1,20 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:writable_book"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.first_quiz.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.first_quiz.description"
+    },
+    "frame": "task"
+  },
+  "parent": "wave_motion_gun_mod:story/first_contact",
+  "criteria": {
+    "code_granted": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

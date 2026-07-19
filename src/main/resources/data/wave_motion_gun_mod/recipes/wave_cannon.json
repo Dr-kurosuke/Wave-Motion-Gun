@@ -1,0 +1,19 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"SBS",
+		"TLT",
+		"DBD"
+	],
+	"key": {
+		"S": { "item": "wave_motion_gun_mod:cosmo_steel" },
+		"L": { "item": "wave_motion_gun_mod:gravity_lens" },
+		"T": { "item": "wave_motion_gun_mod:tachyon_crystal" },
+		"D": { "item": "minecraft:diamond_block" },
+		"B": { "item": "minecraft:obsidian" }
+	},
+	"result": {
+		"item": "wave_motion_gun_mod:wave_cannon",
+		"count": 1
+	}
+}

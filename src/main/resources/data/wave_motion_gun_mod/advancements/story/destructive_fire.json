@@ -1,0 +1,21 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:tnt"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.destructive_fire.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.destructive_fire.description"
+    },
+    "frame": "task",
+    "hidden": true
+  },
+  "parent": "wave_motion_gun_mod:story/fire_wave_cannon",
+  "criteria": {
+    "code_granted": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

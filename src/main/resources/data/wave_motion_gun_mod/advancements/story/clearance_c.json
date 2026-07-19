@@ -1,0 +1,37 @@
+{
+  "display": {
+    "icon": {
+      "item": "wave_motion_gun_mod:clearance_c"
+    },
+    "title": {
+      "translate": "advancement.wave_motion_gun_mod.clearance_c.title"
+    },
+    "description": {
+      "translate": "advancement.wave_motion_gun_mod.clearance_c.description"
+    },
+    "frame": "task"
+  },
+  "parent": "wave_motion_gun_mod:story/first_supply",
+  "criteria": {
+    "has_clearance_c": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "wave_motion_gun_mod:clearance_c"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "wave_motion_gun_mod:shock_cannon",
+      "wave_motion_gun_mod:shock_cannon_barrel",
+      "wave_motion_gun_mod:shock_cannon_shell",
+      "wave_motion_gun_mod:seat_block"
+    ]
+  }
+}
