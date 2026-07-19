@@ -1,15 +1,15 @@
 modLoader="javafml"
 loaderVersion="[47,)"
 license="MIT"
-issueTrackerURL="https://github.com/ksk-kuro/Wave-Motion-Gun/issues"
+issueTrackerURL="https://github.com/Dr-kurosuke/Wave-Motion-Gun/issues"
 
 [[mods]]
 modId="wave_motion_gun_mod"
 version="1.0.0"
 displayName="Wave Motion Gun Mod"
-authors="kskkuro"
+authors="Dr-kurosuke"
 credits="宇宙戦艦をテーマにした非公式ファンMod。原作および権利者とは無関係です。"
-displayURL="https://github.com/ksk-kuro/Wave-Motion-Gun"
+displayURL="https://github.com/Dr-kurosuke/Wave-Motion-Gun"
 description='''
 宇宙戦艦をテーマにした波動砲・ショックカノンMod。マルチブロックの主砲を建造し、エネルギーを充填して発射します。Valkyrien Skies / Eureka! の船に搭載可能。
 
