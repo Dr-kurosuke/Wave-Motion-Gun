@@ -20,15 +20,20 @@
 
 | Minecraft | ローダー | ブランチ |
 |---|---|---|
-| 1.20.1 | Forge 47.x | `main` / `1.20.1` |
+| 1.20.1 | Forge 47.x | **`main`**(開発本線) / `1.20.1`(ミラー) |
 | 1.18.2 | Forge 40.x | `1.18.2` |
+
+1.20.1版の開発本線は `main` です。`1.20.1` ブランチは同じ内容のミラーとして維持しているので、**取得・参照は `main` を使ってください**。1.18.2版は旧API(PoseStack描画・コード定義のDamageSource)で書かれた別系統で、Valkyrien Skies対応は含まれません。
+
+## 必須の併用Mod
+
+- **FE(Forge Energy)を供給できる工業Mod** … **必須です。**
+  本Mod自体は発電手段を持たず、波動エネルギー貯蔵ユニットが外部からFEを受け取る作りになっています。FE を供給できるModが無いと主砲を充填できず、**発射まで到達できません。**
+  [Mekanism](https://modrinth.com/mod/mekanism) / [Thermal Expansion](https://modrinth.com/mod/thermal-expansion) / [Immersive Engineering](https://modrinth.com/mod/immersive-engineering) など、FEを出力できるModであれば何でも構いません(特定のModに依存していません)。
 
 ## 推奨併用Mod(任意)
 
-いずれも**必須ではありません**が、導入すると本来の遊び方ができます。
-
-- **[Valkyrien Skies 2](https://modrinth.com/mod/valkyrien-skies)** + **[Eureka!](https://modrinth.com/mod/eureka)** … 船に主砲を搭載する遊びの前提
-- **[Mekanism](https://modrinth.com/mod/mekanism)** など FE(Forge Energy)を供給できる工業Mod … 主砲のエネルギー源
+- **[Valkyrien Skies 2](https://modrinth.com/mod/valkyrien-skies)** + **[Eureka!](https://modrinth.com/mod/eureka)** … 船に主砲を搭載する遊びの前提。未導入でも単体で動作します
 
 ## AIクイズ機能について
 
