@@ -98,11 +98,12 @@ public final class VSCompat {
         Vec3 base = Vec3.atCenterOf(pos);
         Vec3 originWorld = toWorldPos(level, base);
 
-        // 変換後が元と同じなら船に載っていない(または toWorld がフォールバックした)。
-        // このクラスの toWorld は失敗時に入力をそのまま返すため、その場合 dir が
-        // ローカル+Z のままとなり「方位0度」という一見正常な値になってしまう。
-        // 方位が定義できないことを NaN で明示し、呼び出し側が旋回制限を諦められるようにする。
-        if (originWorld.distanceToSqr(base) < 1.0e-9D) return Float.NaN;
+        // 船上でなければ toWorldCoordinates は入力をそのまま返す。またこのクラスの toWorld は
+        // 失敗時にも入力をそのまま返す。どちらの場合も dir がローカル+Zのままとなり、
+        // 「方位角0で固定」という一見正常な値になって回頭していない状態と区別が付かない。
+        // 未定義(NaN)として扱い、呼び出し側が旋回制限を諦めたり表示を消せるようにする。
+        // シップヤードはワールドから遠く離れた座標に置かれるので、この閾値で誤判定はしない。
+        if (originWorld.distanceToSqr(base) < 1.0e-6D) return Float.NaN;
 
         Vec3 forwardWorld = toWorldPos(level, base.add(0.0D, 0.0D, 1.0D));
         Vec3 dir = forwardWorld.subtract(originWorld);

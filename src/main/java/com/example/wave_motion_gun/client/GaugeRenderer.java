@@ -221,4 +221,106 @@ public class GaugeRenderer {
             prevSin = nextSin;
         }
     }
+
+    // --- 回頭角インジケータ ---
+    /** 円弧の中心角。270度が画面の真上 (チャージ/圧力ゲージと同じ中心)。 */
+    private static final float TURN_ARC_CENTER = 270.0f;
+    /** 画面上での円弧の開き。この両端が回頭角の±limitに対応する。 */
+    private static final float TURN_ARC_SPAN = 70.0f;
+    /**
+     * 円弧の半径。内側は圧力数値(centerY-100から下へ描かれるので半径100が上端)、
+     * 外側は圧力ゲージの目盛り(半径115)で挟まれた隙間に収める。
+     * これより内側へ置くと発射シーケンスのアナウンス(半径70付近)と重なる。
+     */
+    private static final float TURN_ARC_R = 106.0f;
+    /** 数字ラベルを置く半径。円弧の外側、圧力ゲージ目盛りの手前。 */
+    private static final float TURN_LABEL_R = 111.0f;
+    private static final float TURN_LABEL_SCALE = 0.4f;
+    /** 数字ラベルと長い目盛りを何度おきに置くか。 */
+    private static final float TURN_LABEL_STEP = 5.0f;
+
+    /**
+     * 回頭角インジケータ。圧力ゲージのすぐ内側に、目盛り付きの細い円弧と指針を描く。
+     *
+     * <p>画面上は約{@value #TURN_ARC_SPAN}度の円弧だが、その両端が回頭角の±limitに対応する。
+     * 指針が中央(0度)からどちらへどれだけ振れているかで、基準方位からのずれが読める。
+     *
+     * <p>目盛りの数字は内部の回頭角と符号を反転して表示する。指針が動く向きは
+     * 実際の回頭方向のままなので、右へ回頭すれば指針も右へ動き、そこの数字が負になる。
+     *
+     * @param delta 基準方位からの回頭角(度)。負が左、正が右(表示上の符号とは逆)
+     * @param limit 片側の上限角(度)。円弧の端点がこの値になる
+     */
+    public void renderTurnIndicator(GuiGraphics guiGraphics, float delta, float limit) {
+        if (limit <= 0.0f) return;
+
+        float cx = VirtualScaledScreen.VIRTUAL_WIDTH / 2.0f;
+        float cy = (VirtualScaledScreen.VIRTUAL_HEIGHT / 2.0f) + 20.0f;
+
+        float startAngle = TURN_ARC_CENTER - TURN_ARC_SPAN / 2.0f;
+        float endAngle = TURN_ARC_CENTER + TURN_ARC_SPAN / 2.0f;
+
+        // 上限を超えた分は端で頭打ちにする(慣性で行き過ぎても指針が飛び出さない)
+        float clamped = Math.max(-limit, Math.min(limit, delta));
+        float needleAngle = TURN_ARC_CENTER + (clamped / limit) * (TURN_ARC_SPAN / 2.0f);
+        boolean atLimit = Math.abs(delta) >= limit;
+
+        int frameColor = 0x8000FFFF;
+        int tickColor = 0xB300FFFF;
+        int needleColor = atLimit ? 0xE6FF5555 : 0xE655FF55;
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder buffer = tesselator.getBuilder();
+        Matrix4f matrix = guiGraphics.pose().last().pose();
+        buffer.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+
+        // 円弧本体 (1px相当の細い線)
+        emitArc(buffer, matrix, cx, cy, TURN_ARC_R, TURN_ARC_R + 1.0f, startAngle, endAngle, frameColor);
+
+        // 目盛り: 1度刻みの小目盛りを内向きに生やす。5度刻みは長くする
+        int minorCount = (int) (limit * 2.0f) + 1;
+        for (int i = 0; i < minorCount; i++) {
+            float value = -limit + i;
+            float angle = TURN_ARC_CENTER + (value / limit) * (TURN_ARC_SPAN / 2.0f);
+            boolean major = Math.abs(value % TURN_LABEL_STEP) < 0.001f;
+            float len = major ? 4.5f : 2.5f;
+            emitArc(buffer, matrix, cx, cy, TURN_ARC_R - len, TURN_ARC_R, angle - 0.15f, angle + 0.15f, tickColor);
+        }
+
+        // 指針: 円弧をまたぐ形で引く。外側はラベル(半径111)に触れない範囲まで
+        emitArc(buffer, matrix, cx, cy, TURN_ARC_R - 5.5f, TURN_ARC_R + 2.0f,
+                needleAngle - 0.45f, needleAngle + 0.45f, needleColor);
+
+        tesselator.end();
+        RenderSystem.disableBlend();
+
+        // 目盛りの数字。円弧に沿って傾ける。
+        // 角度aの位置での接線方向は a+90 度なので、その分回転させると弧に沿う
+        PoseStack poseStack = guiGraphics.pose();
+        for (float value = -limit; value <= limit + 0.001f; value += TURN_LABEL_STEP) {
+            float angle = TURN_ARC_CENTER + (value / limit) * (TURN_ARC_SPAN / 2.0f);
+            double rad = Math.toRadians(angle);
+            float lx = cx + (float) Math.cos(rad) * TURN_LABEL_R;
+            float ly = cy + (float) Math.sin(rad) * TURN_LABEL_R;
+
+            // 表示上の符号は内部の回頭角と逆にする(指針の動く向きは実際の回頭方向のまま)
+            int shown = Math.round(-value);
+            String label = shown > 0 ? "+" + shown : String.valueOf(shown);
+            int w = this.font.width(label);
+
+            poseStack.pushPose();
+            poseStack.translate(lx, ly, 0);
+            poseStack.mulPose(Axis.ZP.rotationDegrees(angle + 90.0f));
+            poseStack.scale(TURN_LABEL_SCALE, TURN_LABEL_SCALE, 1.0f);
+            // drawStringは整数座標しか取れないため、中央寄せの端数はtranslate側で吸収する
+            // (このクラスの他のテキスト描画と同じ作法)
+            poseStack.translate(-w / 2.0f, -4.0f, 0);
+            guiGraphics.drawString(this.font, label, 0, 0, COLOR_HOLO_TEXT, false);
+            poseStack.popPose();
+        }
+    }
 }
