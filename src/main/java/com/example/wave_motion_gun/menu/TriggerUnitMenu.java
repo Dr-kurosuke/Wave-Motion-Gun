@@ -100,6 +100,9 @@ public class TriggerUnitMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
+        // BEが未同期のとき levelAccess は ContainerLevelAccess.NULL で、
+        // その evaluate はデフォルト値(true)を返すためGUIが閉じなくなる。先に弾く。
+        if (this.blockEntity == null || this.blockEntity.getLevel() == null) return false;
         return stillValid(levelAccess, player, BlockInit.TRIGGER_UNIT.get());
     }
 

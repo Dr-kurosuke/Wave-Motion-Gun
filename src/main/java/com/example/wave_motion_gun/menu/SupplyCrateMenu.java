@@ -23,17 +23,20 @@ public class SupplyCrateMenu extends AbstractContainerMenu {
     // サーバー側コンストラクタ
     public SupplyCrateMenu(int containerId, Inventory playerInv, BlockEntity entity) {
         super(MenuInit.SUPPLY_CRATE_MENU.get(), containerId);
+        // クライアント側でBEが未同期のままGUIが開かれるとentityがnullになりうるためガードする
         this.blockEntity = entity;
 
         // BlockEntityのインベントリ機能を取得してスロット配置 (3x3)
-        this.blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
-            for (int row = 0; row < 3; row++) {
-                for (int col = 0; col < 3; col++) {
-                    // ディスペンサーGUIに合わせた配置 (x:62, y:17 が左上)
-                    this.addSlot(new SlotItemHandler(handler, col + row * 3, 62 + col * 18, 17 + row * 18));
+        if (this.blockEntity != null) {
+            this.blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
+                for (int row = 0; row < 3; row++) {
+                    for (int col = 0; col < 3; col++) {
+                        // ディスペンサーGUIに合わせた配置 (x:62, y:17 が左上)
+                        this.addSlot(new SlotItemHandler(handler, col + row * 3, 62 + col * 18, 17 + row * 18));
+                    }
                 }
-            }
-        });
+            });
+        }
 
         // プレイヤーのインベントリ (メイン)
         for (int row = 0; row < 3; row++) {
@@ -50,7 +53,7 @@ public class SupplyCrateMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        // ★修正: ContainerLevelAccess を正しく使用
+        if (this.blockEntity == null || this.blockEntity.getLevel() == null) return false;
         return stillValid(ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos()), player, blockEntity.getBlockState().getBlock());
     }
 

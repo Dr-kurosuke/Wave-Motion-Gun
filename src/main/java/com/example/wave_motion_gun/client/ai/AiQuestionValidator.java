@@ -66,12 +66,27 @@ public class AiQuestionValidator {
     }
 
     /**
+     * APIキーらしき文字列を伏せる。
+     *
+     * レスポンス本文にキーが含まれないという保証は無い:
+     *  - OpenAI公式の401本文は "Incorrect API key provided: sk-pr***XYZ." のようにキー断片を含む
+     *  - baseUrl差し替えを許しているため、受け取った Authorization をそのまま
+     *    エコーするゲートウェイ実装に当たる可能性がある
+     * latest.log はバグ報告でそのまま貼られるので、ログに出す前に必ず通すこと。
+     */
+    private static String maskSecrets(String s) {
+        return s.replaceAll("sk-[A-Za-z0-9_\\-]{8,}", "sk-***")
+                .replaceAll("AIza[0-9A-Za-z_\\-]{10,}", "AIza***")
+                .replaceAll("(?i)bearer\\s+\\S+", "Bearer ***");
+    }
+
+    /**
      * 診断ログ用にレスポンス本文を1行・短縮化する。
-     * 本文はAPIの応答(エラー理由を含む)であり、APIキーは含まれない。
+     * APIキーらしき文字列は maskSecrets で伏せてから返す。
      */
     public static String snippet(String body, int maxLength) {
         if (body == null) return "(empty)";
-        String oneLine = body.replaceAll("\\s+", " ").trim();
+        String oneLine = maskSecrets(body.replaceAll("\\s+", " ").trim());
         if (oneLine.isEmpty()) return "(empty)";
         return oneLine.length() > maxLength ? oneLine.substring(0, maxLength) + "..." : oneLine;
     }
