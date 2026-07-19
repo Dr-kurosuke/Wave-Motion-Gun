@@ -21,6 +21,12 @@ import java.util.Set;
 @Mod.EventBusSubscriber
 public class FrequencyManager {
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    /**
+     * 周波数の上限。ContainerData は ClientboundContainerSetDataPacket の writeShort で
+     * 同期されるため、16bit に収まらない値はクライアント側で負値に化ける。
+     */
+    public static final int MAX_FREQUENCY = Short.MAX_VALUE;
     private static final Map<Integer, Set<MonitoringUnitBlockEntity>> receivers = new HashMap<>();
     private static final Map<Integer, Set<TriggerUnitBlockEntity>> triggers = new HashMap<>();
 
@@ -147,10 +153,13 @@ public class FrequencyManager {
             return Collections.emptySet();
         }
 
-        if (origin == null) return set;
+        // 【必ずコピーを返すこと】内部セットの実体を返すとCMEになる。
+        // 呼び出し元が反復中に activate() 等を呼ぶと、その先の getBlockEntity() が
+        // 未ロードチャンクを同期ロードし、そこに MonitoringUnit があれば
+        // onLoad→register でこのセットが構造変更されるため。
+        if (origin == null) return new HashSet<>(set);
 
         // 同一Level かつ ロード済み のものだけを新しいSetにして返す
-        // (呼び出し元がsetを直接触らないよう、絞り込み時はコピーを返す)
         Set<MonitoringUnitBlockEntity> scoped = new HashSet<>();
         for (MonitoringUnitBlockEntity be : set) {
             if (isSameLevelAndLoaded(be, origin)) scoped.add(be);

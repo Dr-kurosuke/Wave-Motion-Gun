@@ -72,7 +72,9 @@ public class MonitoringUnitUpdatePacket {
                 if (!com.example.wave_motion_gun.compat.VSCompat.isWithinReach(player, msg.pos, 64)) return;
                 BlockEntity be = player.level().getBlockEntity(msg.pos);
                 if (be instanceof MonitoringUnitBlockEntity monitor) {
-                    monitor.setFrequency(msg.frequency);
+                    // setFrequency 側でもクランプしているが、パケット境界でも明示的に弾く
+                    monitor.setFrequency(net.minecraft.util.Mth.clamp(msg.frequency, 0,
+                            com.example.wave_motion_gun.utils.FrequencyManager.MAX_FREQUENCY));
 
                     // 改造クライアント対策: サーバー権威の上限(構造由来)でクランプする
                     monitor.damageValue = net.minecraft.util.Mth.clamp(msg.damage, 0, monitor.getMaxDamageLimit());

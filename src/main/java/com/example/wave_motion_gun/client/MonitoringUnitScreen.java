@@ -113,7 +113,10 @@ public class MonitoringUnitScreen extends VirtualScaledScreen<MonitoringUnitMenu
         // Freq
         this.frequencyBox = new EditBox(this.font, 40, topY, 50, 20, Component.literal("Freq"));
         this.frequencyBox.setValue(String.valueOf(currentFreq));
-        this.frequencyBox.setFilter(s -> s.matches("\\d*"));
+        // 上限は FrequencyManager.MAX_FREQUENCY (16bit同期の制約)。超過入力は受け付けない
+        // 先に桁数で弾くことで parseInt のオーバーフロー/例外を防ぐ (MAX_FREQUENCY は5桁)
+        this.frequencyBox.setFilter(s -> s.matches("\\d*") && s.length() <= 5
+                && (s.isEmpty() || Integer.parseInt(s) <= com.example.wave_motion_gun.utils.FrequencyManager.MAX_FREQUENCY));
         this.frequencyBox.setBordered(true);
         this.addRenderableWidget(this.frequencyBox);
 
