@@ -80,6 +80,41 @@ public final class VSCompat {
     }
 
     /**
+     * 指定位置の船が、ワールド座標系で向いている方位角(度)を返す。
+     *
+     * <p>シップヤード座標のローカル+Z軸をワールドへ変換し、その向きをMinecraftのyaw規約
+     * (南=0/西=90/北=180/東=270)に直したもの。船が回頭すると値が変化するので、
+     * 2時点の差を取れば回頭量が求まる。
+     *
+     * <p>Ship / ShipTransform はVS2 jar内部のネストjar(jarjar)にしか存在せず
+     * コンパイルクラスパスに乗らないため、回転を直接問い合わせることはできない。
+     * メインjarにある toWorldCoordinates(Level, Vec3) だけで代替している。
+     *
+     * @return 方位角(度)。船に載っていない・VS2未導入・変換不可・機首が真上/真下の場合は {@code NaN}
+     */
+    public static float shipYawAt(Level level, BlockPos pos) {
+        if (!VS2_LOADED || level == null || pos == null) return Float.NaN;
+
+        Vec3 base = Vec3.atCenterOf(pos);
+        Vec3 originWorld = toWorldPos(level, base);
+
+        // 変換後が元と同じなら船に載っていない(または toWorld がフォールバックした)。
+        // このクラスの toWorld は失敗時に入力をそのまま返すため、その場合 dir が
+        // ローカル+Z のままとなり「方位0度」という一見正常な値になってしまう。
+        // 方位が定義できないことを NaN で明示し、呼び出し側が旋回制限を諦められるようにする。
+        if (originWorld.distanceToSqr(base) < 1.0e-9D) return Float.NaN;
+
+        Vec3 forwardWorld = toWorldPos(level, base.add(0.0D, 0.0D, 1.0D));
+        Vec3 dir = forwardWorld.subtract(originWorld);
+
+        // 機首が真上/真下を向いていると水平成分が消え、方位角が定義できない
+        double horizontalSqr = dir.x * dir.x + dir.z * dir.z;
+        if (horizontalSqr < 1.0e-8D) return Float.NaN;
+
+        return (float) (net.minecraft.util.Mth.atan2(dir.z, dir.x) * (180.0D / Math.PI)) - 90.0F;
+    }
+
+    /**
      * VS2クラスへの参照はこの内部クラスに隔離する。
      * 外側クラスからはVS2_LOADED確認後にのみ触ること
      * (VS2未導入環境でVS2クラスの解決が走りNoClassDefFoundErrorになる事故を防ぐ)。
