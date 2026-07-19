@@ -113,6 +113,8 @@ public class TriggerUnitScreen extends VirtualScaledScreen<TriggerUnitMenu> {
     private static final float TURN_LIMIT_DEGREES = 10.0F;
     /** 旋回制限の基準方位。画面を開いた時点の船の方位を保持する(NaN = 未取得)。 */
     private float steeringReferenceYaw = Float.NaN;
+    /** 基準方位からの現在の回頭角(度)。NaN = 船上でないため表示しない。 */
+    private float turnDelta = Float.NaN;
     private boolean wasOverheated = false;
     private long lastAutoSwitchTime = 0;
 
@@ -416,6 +418,10 @@ public class TriggerUnitScreen extends VirtualScaledScreen<TriggerUnitMenu> {
      * </ul>
      */
     private void updateShipSteering() {
+        // 回頭角はUI表示にも使うため、操舵できるかどうかとは無関係に常に更新する
+        // (姿勢制御固定中でも現在のずれを読めるようにするため)
+        updateTurnDelta();
+
         boolean canSteer = this.minecraft != null
                 && this.minecraft.player != null
                 && this.minecraft.player.isPassenger()
@@ -429,22 +435,28 @@ public class TriggerUnitScreen extends VirtualScaledScreen<TriggerUnitMenu> {
 
         boolean allowLeft = true;
         boolean allowRight = true;
-
-        if (isBlockEntityValid() && this.minecraft.level != null) {
-            float yaw = VSCompat.shipYawAt(this.minecraft.level, menu.getBlockEntity().getBlockPos());
-            if (!Float.isNaN(yaw)) {
-                if (Float.isNaN(this.steeringReferenceYaw)) {
-                    this.steeringReferenceYaw = yaw;
-                }
-                // 基準からの回頭量。Mth.degreesDifference は -180..180 に正規化する
-                float delta = Mth.degreesDifference(this.steeringReferenceYaw, yaw);
-                // Minecraftのyawは右回りで増加するため、A(左)は減少方向・D(右)は増加方向
-                if (delta >= TURN_LIMIT_DEGREES) allowRight = false;
-                if (delta <= -TURN_LIMIT_DEGREES) allowLeft = false;
-            }
+        if (!Float.isNaN(this.turnDelta)) {
+            // Minecraftのyawは右回りで増加するため、A(左)は減少方向・D(右)は増加方向
+            if (this.turnDelta >= TURN_LIMIT_DEGREES) allowRight = false;
+            if (this.turnDelta <= -TURN_LIMIT_DEGREES) allowLeft = false;
         }
 
         ShipControlPassthrough.poll(allowLeft, allowRight);
+    }
+
+    /** 基準方位からの回頭角を更新する。船上でなければ NaN のままにして表示を消す。 */
+    private void updateTurnDelta() {
+        this.turnDelta = Float.NaN;
+        if (!isBlockEntityValid() || this.minecraft == null || this.minecraft.level == null) return;
+
+        float yaw = VSCompat.shipYawAt(this.minecraft.level, menu.getBlockEntity().getBlockPos());
+        if (Float.isNaN(yaw)) return;
+
+        if (Float.isNaN(this.steeringReferenceYaw)) {
+            this.steeringReferenceYaw = yaw;
+        }
+        // Mth.degreesDifference は -180..180 に正規化する
+        this.turnDelta = Mth.degreesDifference(this.steeringReferenceYaw, yaw);
     }
 
     /** チャージ率 = 蓄電エネルギー / 発射コスト */
@@ -833,6 +845,10 @@ public class TriggerUnitScreen extends VirtualScaledScreen<TriggerUnitMenu> {
 
         if (uiOpenProgress > 0.0f && startScissor(70, 0, 360, 200)) {
             gauges.renderArc(poseStack, percent, remoteOverheat, isOverheated, currentDispPressure);
+            // 回頭角インジケータ。船上でない時(NaN)は表示しない
+            if (!Float.isNaN(this.turnDelta)) {
+                gauges.renderTurnIndicator(poseStack, this.turnDelta, TURN_LIMIT_DEGREES);
+            }
             endScissor();
         }
 

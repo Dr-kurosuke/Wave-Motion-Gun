@@ -44,6 +44,12 @@ public final class VSCompat {
         Vec3 forwardWorld = VS2Handler.toWorld(level, base.add(0.0D, 0.0D, 1.0D));
         if (originWorld == null || forwardWorld == null) return Float.NaN;
 
+        // 船上でなければ toWorldCoordinates は入力をそのまま返す。
+        // その場合「方位角0で固定」になり回頭していないのと区別が付かないため、
+        // 未定義(NaN)として扱い呼び出し側で表示を消せるようにする。
+        // シップヤードはワールドから遠く離れた座標に置かれるので誤判定はしない。
+        if (originWorld.distanceToSqr(base) < 1.0e-6D) return Float.NaN;
+
         Vec3 dir = forwardWorld.subtract(originWorld);
         // 機首が真上/真下を向いていると水平成分が消え、方位角が定義できない
         double horizontalSqr = dir.x * dir.x + dir.z * dir.z;
