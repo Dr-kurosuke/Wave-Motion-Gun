@@ -27,8 +27,9 @@ import net.minecraftforge.client.settings.IKeyConflictContext;
  *       押下フラグを立てても画面表示中は {@code isDown()} がfalseに潰される。
  *       そこで操舵中だけ有効になるコンテキストで包む</li>
  * </ol>
- * VS2の下降(V)・巡航(C)は {@code new KeyMapping(...)} 既定の {@code UNIVERSAL} コンテキストのため
- * 2.は不要で、1.だけで動作する。放置すると画面表示中も生きるので毎tick明示的に解除する。
+ * <p><b>触る対象はA/Dだけに限ること。</b> 前進・後退・上昇やVS2の下降/巡航まで
+ * {@code setDown()} で毎tick潰す実装にしたところ、Eureka船が動かなくなる不具合を起こした。
+ * 画面表示中は releaseAll() で既に全キーがfalseなので、そもそも潰す必要が無い。
  *
  * <p>1.18.2版では {@code Screen.passEvents = true} という代替手段があったが、
  * それだと {@code Minecraft.tick()} の {@code handleKeybinds()} も走るようになり、
@@ -39,17 +40,13 @@ import net.minecraftforge.client.settings.IKeyConflictContext;
 @OnlyIn(Dist.CLIENT)
 public final class ShipControlPassthrough {
 
-    /**
-     * VS2の下降・巡航キーが属するカテゴリ。
-     * VS2のクラスを直接参照するとVS2未導入環境で解決エラーになるため、
-     * 文字列一致で拾うことで依存を持たずに対応する。
-     */
-    private static final String VS2_DRIVING_CATEGORY = "category.valkyrienskies.driving";
-
     /** 操舵キーを通している間だけtrue。競合コンテキストの判定に使う。 */
     private static boolean steering = false;
 
     private static boolean installed = false;
+    /** 差し替える前の競合コンテキスト。解除時に必ず元へ戻すため保持する。 */
+    private static IKeyConflictContext originalLeft;
+    private static IKeyConflictContext originalRight;
 
     private ShipControlPassthrough() {}
 
@@ -70,28 +67,33 @@ public final class ShipControlPassthrough {
         long window = mc.getWindow().getWindow();
         Options options = mc.options;
 
-        // 旋回のみ通す
+        // 触るのは旋回に使うA/Dだけに限定する。
+        //
+        // 前進・後退・上昇やVS2の下降/巡航には手を出さない。画面表示中は
+        // Minecraft.setScreen() の releaseAll() で既に全キーがfalseになっており、
+        // KeyboardHandler も screen != null の間は set() を呼ばないため、放っておけば押されない。
+        // ここで余計にsetDown()を呼ぶと、他Mod(Eureka等)が管理している操船状態まで
+        // 巻き込むおそれがある。実際、以前は毎tick広範囲のキーを潰しており、
+        // Eureka船が動かなくなる不具合を起こした。
         apply(options.keyLeft, window, allowLeft);
         apply(options.keyRight, window, allowRight);
-
-        // 前進・後退・上昇は常に解除
-        apply(options.keyUp, window, false);
-        apply(options.keyDown, window, false);
-        apply(options.keyJump, window, false);
-
-        // VS2の下降(V)・巡航(C)も常に解除。
-        // これらは UNIVERSAL コンテキストのため、放置すると画面表示中でも生きてしまう
-        for (KeyMapping km : options.keyMappings) {
-            if (VS2_DRIVING_CATEGORY.equals(km.getCategory())) {
-                apply(km, window, false);
-            }
-        }
     }
 
-    /** 画面を閉じた時に呼ぶ。操舵状態を解除する(押下フラグ自体は残さない)。 */
+    /**
+     * 画面を閉じた時に呼ぶ。差し替えた競合コンテキストを元へ戻し、押下フラグも落とす。
+     *
+     * <p>コンテキストの差し替えはグローバルかつセッション中ずっと残る変更なので、
+     * 使い終わったら必ず元に戻すこと。戻さないと通常プレイのキー判定に影響が残る。
+     */
     public static void release() {
-        poll(false, false);
         steering = false;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.options == null) return;
+
+        Options options = mc.options;
+        if (options.keyLeft != null) options.keyLeft.setDown(false);
+        if (options.keyRight != null) options.keyRight.setDown(false);
+        uninstall(options);
     }
 
     private static void apply(KeyMapping mapping, long window, boolean enabled) {
@@ -113,11 +115,28 @@ public final class ShipControlPassthrough {
     private static void install(Options options) {
         if (installed) return;
         installed = true;
-        for (KeyMapping km : new KeyMapping[]{options.keyLeft, options.keyRight}) {
-            if (km != null && !(km.getKeyConflictContext() instanceof SteeringContext)) {
-                km.setKeyConflictContext(new SteeringContext(km.getKeyConflictContext()));
-            }
+        if (options.keyLeft != null) {
+            originalLeft = options.keyLeft.getKeyConflictContext();
+            options.keyLeft.setKeyConflictContext(new SteeringContext(originalLeft));
         }
+        if (options.keyRight != null) {
+            originalRight = options.keyRight.getKeyConflictContext();
+            options.keyRight.setKeyConflictContext(new SteeringContext(originalRight));
+        }
+    }
+
+    /** install() で差し替えた競合コンテキストを元へ戻す。 */
+    private static void uninstall(Options options) {
+        if (!installed) return;
+        installed = false;
+        if (options.keyLeft != null && originalLeft != null) {
+            options.keyLeft.setKeyConflictContext(originalLeft);
+        }
+        if (options.keyRight != null && originalRight != null) {
+            options.keyRight.setKeyConflictContext(originalRight);
+        }
+        originalLeft = null;
+        originalRight = null;
     }
 
     /**
