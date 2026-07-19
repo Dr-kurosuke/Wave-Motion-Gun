@@ -5,7 +5,9 @@ issueTrackerURL="https://github.com/Dr-kurosuke/Wave-Motion-Gun/issues"
 
 [[mods]]
 modId="wave_motion_gun_mod"
-version="1.0.0"
+# jarのマニフェスト(Implementation-Version)から取得するため gradle.properties の
+# mod_version と常に一致する。開発環境(runClient/runServer)では jar が無いため "NONE" と表示される。
+version="${file.jarVersion}"
 displayName="Wave Motion Gun Mod"
 authors="Dr-kurosuke"
 credits="宇宙戦艦をテーマにした非公式ファンMod。原作および権利者とは無関係です。"
