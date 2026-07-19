@@ -1,6 +1,7 @@
 package com.example.wave_motion_gun.client;
 
 import com.example.wave_motion_gun.blockentity.WaveCannonBlockEntity;
+import com.example.wave_motion_gun.compat.VSCompat;
 import com.example.wave_motion_gun.blockentity.WaveEnergyStorageBlockEntity;
 import com.example.wave_motion_gun.client.widget.FireButton;
 import com.example.wave_motion_gun.utils.FrequencyManager;
@@ -104,6 +105,14 @@ public class TriggerUnitScreen extends VirtualScaledScreen<TriggerUnitMenu> {
     // State Variables
     private boolean triggerSafety = false;
     private boolean postureLock = false;
+
+    /**
+     * 画面を開いたままA/Dで旋回できる、基準方位からの片側の上限角(度)。
+     * キー入力を止めても船の回転慣性で行き過ぎるため、狙いの可動域より小さめに取る。
+     */
+    private static final float TURN_LIMIT_DEGREES = 10.0F;
+    /** 旋回制限の基準方位。画面を開いた時点の船の方位を保持する(NaN = 未取得)。 */
+    private float steeringReferenceYaw = Float.NaN;
     private boolean wasOverheated = false;
     private long lastAutoSwitchTime = 0;
 
@@ -359,6 +368,8 @@ public class TriggerUnitScreen extends VirtualScaledScreen<TriggerUnitMenu> {
     public void containerTick() {
         super.containerTick();
 
+        updateShipSteering();
+
         // 入力ボックスにフォーカスがない場合、常にサーバーの値を反映させる
         if (this.frequencyBox != null && !this.frequencyBox.isFocused()) {
             String currentStr = this.frequencyBox.getValue();
@@ -390,6 +401,51 @@ public class TriggerUnitScreen extends VirtualScaledScreen<TriggerUnitMenu> {
 
     // --- Safety Checks & Logic ---
     private boolean isBlockEntityValid() { return menu != null && menu.getBlockEntity() != null && !menu.getBlockEntity().isRemoved(); }
+
+    /**
+     * この画面を開いたままでも船の旋回(A/D)だけは続けられるようにする。
+     *
+     * <p>旋回できるのは画面を開いた時点の方位から ±{@link #TURN_LIMIT_DEGREES} 度まで。
+     * 上限に達した側の入力だけを止めるので、常に元の方位へ戻る操作は残る。
+     *
+     * <p>止める条件:
+     * <ul>
+     *   <li>着席していない(舵を握っていない)</li>
+     *   <li>姿勢制御固定(postureLock)がON — 機体を動かさない運用のため</li>
+     *   <li>周波数入力中 — AとDがテキスト操作と二重に効いてしまうため</li>
+     * </ul>
+     */
+    private void updateShipSteering() {
+        boolean canSteer = this.minecraft != null
+                && this.minecraft.player != null
+                && this.minecraft.player.isPassenger()
+                && !this.postureLock
+                && (this.frequencyBox == null || !this.frequencyBox.isFocused());
+
+        if (!canSteer) {
+            ShipControlPassthrough.poll(false, false);
+            return;
+        }
+
+        boolean allowLeft = true;
+        boolean allowRight = true;
+
+        if (isBlockEntityValid() && this.minecraft.level != null) {
+            float yaw = VSCompat.shipYawAt(this.minecraft.level, menu.getBlockEntity().getBlockPos());
+            if (!Float.isNaN(yaw)) {
+                if (Float.isNaN(this.steeringReferenceYaw)) {
+                    this.steeringReferenceYaw = yaw;
+                }
+                // 基準からの回頭量。Mth.degreesDifference は -180..180 に正規化する
+                float delta = Mth.degreesDifference(this.steeringReferenceYaw, yaw);
+                // Minecraftのyawは右回りで増加するため、A(左)は減少方向・D(右)は増加方向
+                if (delta >= TURN_LIMIT_DEGREES) allowRight = false;
+                if (delta <= -TURN_LIMIT_DEGREES) allowLeft = false;
+            }
+        }
+
+        ShipControlPassthrough.poll(allowLeft, allowRight);
+    }
 
     /** チャージ率 = 蓄電エネルギー / 発射コスト */
     private float computeChargePercent() {
@@ -819,6 +875,8 @@ public class TriggerUnitScreen extends VirtualScaledScreen<TriggerUnitMenu> {
     @Override
     public void removed() {
         Minecraft.getInstance().options.hideGui = false;
+        // 画面を閉じたら操舵の肩代わりを解除し、通常のキー入力処理へ戻す
+        ShipControlPassthrough.release();
         super.removed();
     }
 }
